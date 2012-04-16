@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails | Matt Aimonetti]]></title>
   <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/rails/atom.xml" rel="self"/>
   <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
-  <updated>2012-04-17T01:42:35+02:00</updated>
+  <updated>2012-04-17T01:56:43+02:00</updated>
   <id>http://mattetti.github.com/Matt-Aimonetti/</id>
   <author>
     <name><![CDATA[Matt Aimonetti]]></name>
@@ -189,6 +189,150 @@ Also, be careful about the order of the file extensions, otherwise it won't work
 <h3>Conclusion</h3>
 
 <p>Don't be fooled like me and expect that because you have an app running locally, deployment will work right away. Make sure to read about the new features and what's needed. Overall, I think that the asset pipeline is a nice addon to Rails and if you don't feel like using it, just can put/leave all your files in the public folder and everything will work just like before. I do have to say that I was surprised to see that even in a brand new Rails 3.1 project, Rails isn't running in threaded mode by default. But that's a different (old) story and I guess people still get more excited about asset management than framework raw performance ;)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Discussion with a Java switcher]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/08/22/discussion-with-a-java-switcher/"/>
+    <updated>2010-08-22T17:18:55+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/08/22/discussion-with-a-java-switcher</id>
+    <content type="html"><![CDATA[<p>For the past 6 months, I have had regular discussions with an experienced Java developers who switched to Ruby a couple years ago. Names have been changed to protect the guilty but to help you understand my friend 'Duke' better, you need to know that he has been a developer for 10 years and lead many complicated, high traffic projects. He recently released two Ruby on Rails projects and he has been fighting with performance issues and scalability challenges.</p>
+
+<p>Duke is a happy Ruby developer but he sometimes has a hard time understanding why things are done in a certain way in the Ruby community. Here are some extracts from our conversations. My answers are only based on my own experience and limited knowledge. They are probably not shared by the entire  community, feel free to use the comment section if you want to add more or share your own answers.</p>
+
+<h2>Threads / Concurrency</h2>
+
+<p><strong>Duke:</strong> Why does the Ruby community hate threads so much. It seems to be a taboo discussion and the only answer I hear is that threads are hard to deal with and that Ruby does not have a good threading implementation. What's the deal there? If you want concurrent processing, threads are important!</p>
+
+<p><strong>Me:</strong> This is a very good question and I think there are two main reasons why threads and thread safety are not hot topics in the Ruby world. First, look at Ruby's main implementation itself. If you are using an old version of Ruby (pre Ruby 1.9) you don't use native threads but green threads mapping to only 1 native thread. Ilya has a great (yet a bit old) <a href="http://www.igvita.com/2008/11/13/concurrency-is-a-myth-in-ruby/">blog post explaining the difference</a>, why it matters and also the role and effect of the Global Interpreter Lock (GIL). Also, even though Rubyists like to say that they live in the edge, most of them still use Ruby 1.8 and therefore don't really see the improvements in Ruby 1.9 nor yet understand the potential of <a href="http://ruby-doc.org/core-1.9/classes/Fiber.html">fibers</a>.</p>
+
+<p>The other part of the explanation is that the Rails community never really cared until recently. Yehuda Katz recently wrote a <a href="http://yehudakatz.com/2010/08/14/threads-in-ruby-enough-already/">good article on thread safety</a> in Ruby and if you read his post and <a href="http://dpaste.de/5xyG/raw/">Zed Shaw's comment</a> you will understand a bit better the historical background. As a matter of fact, the current version of Rails is not multi-threaded by default and developers interested in handling concurrent requests in one process should <a href="http://api.rubyonrails.org/classes/Rails/Configuration.html#M002069">turn on this option</a>. Thread safety appeared for the first time in Rails 2.2 but from what I saw, most people still don't enable this option. There are many reasons for that. First, enabling thread safety disables some Rails features like automatic dependency loading after boot and code reloading. A lot of Rails developers take these two features for granted and don't understand that they are technically "hacks" to make their lives easier. I do believe a lot of Rails developers don't understand how threads, thread safety, concurrency, blocking IO and dependencies work. They care about getting their app done and meet their deadlines. They usually use and know Rails without paying too much attention to how Rails extends Ruby. Imagine what would happen if their code wasn't thread safe and Rails wasn't not using a global lock by default. Now you see why things are not exactly as you expect and also why some Rubyists are getting excited about new projects like <a href="http://nodejs.org/">node.js</a> which takes a different approach.</p>
+
+<p>The other thing to keep in mind is that at least 90 to 95% of the Rails apps out there don't get more than a dozen requests/second (a million requests/day). You can scale that kind of load pretty easily using simple approaches like caching,  optimize your DB queries, load balancing to a couple servers. As a matter of fact, compared to the amount of people using Rails on a daily basis, only a very little amount of people are struggling with performance and scalability like you do. This is not an excuse but that explains why these people don't care about the things you care about.</p>
+
+<h2>Rails is slow</h2>
+
+<p><strong>Duke:</strong> I don't understand why Rails developers are not more concerned about the speed/performance penalty induced by Rails.</p>
+
+<p><strong>Me:</strong> Again, Rails is fast enough for the large majority of developers out there. As you know, as a developer you have to always make compromises. The Rails team always said that development time is more expensive than servers and therefore the focus is on making development easier, faster and more enjoyable. However to get there, they have to somewhat sacrifice some performance. What can be totally unacceptable for you is totally fine for others and your contribution is always welcome. This is probably the root cause of the things you don't like in Rails. Rails was built for startups, by startup developers and you don't fall in this category. People contributing new features and fixes are the people using Rails for what it is designed to do. There is no real 'Enterprise' support behind Rails and that might be why you feel the way you feel. Since you find yourself questioning some key Rails conventions and you are struggling with missing features, it looks  to me that you chose the wrong tool for the job since you don't even use 70% of the Rails features and are dreaming of things such 3 tier architecture. <a href="http://sinatrarb.com">Sinatra</a> might be a better fit for you if you want lower level control, less conventions and less built-in features.</p>
+
+<h2>Object allocation / Garbage Collection</h2>
+
+<p><strong>Duke:</strong> I recently read that Twitter was spending <a href="http://blog.evanweaver.com/articles/2009/10/21/object-allocations-on-the-web/">20% of its request cycles in the GC</a>, am I the only finding that concerning?</p>
+
+<p><strong>Me:</strong> Most people don't realize how the GC works and what it means to allocate objects since Ruby does that automatically. But at the same time, most of these people don't really see the affect of the Garbage Collection since they don't have that much traffic or they scale in ways that just skips their Ruby stack entirely. (Or they just blame Ruby for being slow)</p>
+
+<p>If you are app deals with mainly reads/GET requests, using HTTP caching (Rails has that built-in) and something like Varnish/<a href="http://rtomayko.github.com/rack-cache/">Rack-cache</a> will dramatically reduce the load on your server apps. Others don't investigate their issues and just add more servers. As mentioned in a <a href="http://merbist.com/2010/07/29/object-allocation-why-you-should-care/">previous post</a>, some libraries like Builder are allocating LOTS more objects than others (Nokogiri), use the existing debugging tools to see where your object allocations occur and try to fix/workaround these. In other words, Ruby's GC isn't great but by ignoring its limitations, we made things even worse. My guess is that the GC is going to improve (other implementations already have better GCs) and that people will realize that Ruby is not magic and critical elements need to be improved.</p>
+
+<h2>Tools</h2>
+
+<p><strong>Duke:</strong> I really have a hard time finding good tools to help scale my apps better and understand where I should optimize my code.</p>
+
+<p><strong>Me: </strong>It is true that we area lacking tools but things are changing. On top of the built-in tools like <a href="http://ruby-doc.org/core-1.9/classes/ObjectSpace.html">ObjectSpace</a>, <a href="http://ruby-doc.org/core-1.9/classes/GC/Profiler.html">GC::Profiler</a>, people interested in performance/debugging are working to provide the Ruby community with their expertise, look at <a href="http://memprof.com/">memprof</a> and <a href="http://rubyforge.org/projects/ruby-debug/">ruby-debug</a> for instance. Of course you can also use tools such as <a href="http://ruby-prof.rubyforge.org/">Ruby-prof</a>, <a href="http://kcachegrind.sourceforge.net/html/Home.html">Kcachegrind</a>, <a href="http://valgrind.org/">Valgrind</a> and <a href="http://www.gnu.org/software/gdb/">GDB</a>. (1.9.2 was <a href="http://github.com/yugui/ruby/tree/feature/dtrace">scheduled to have DTrace support</a> but I did not check yet). Maybe you should be more explicit about what tools you miss and how we could solve the gap.</p>
+
+<h2>ActiveRecord</h2>
+
+<p><strong>Duke:</strong> ActiveRecord doesn't do what I need. How come there is no native support for master/slave DBs, sharding, DB view support is buggy,  suggested indexes on queries is not built-in and errors are not handled properly (server is gone, out of sync etc..)?</p>
+
+<p><strong>Me:</strong> You don't have to use ActiveRecord, you could use any ORM such as <a href="http://sequel.rubyforge.org/">Sequel</a>, <a href="http://datamapper.org/">DataMapper</a> or your own. But to answer your question, I think that AR doesn't do everything you want because nobody contributed these features to the project and the people maintaining ActiveRecord don't have the need for these features.</p>
+
+<h2>What can we do?</h2>
+
+<p>We, as a community, need to realize that we have to learn from other communities and other programming languages, this kind of humorous graph is unfortunately not too far from reality.</p>
+
+<p><img src="http://i.imgur.com/G7WyP.gif" alt="" /></p>
+
+<p>Bringing your expertise and knowledge to the Ruby community is important. Looking further than just our own little will push us to improve and fulfill the gaps. Let the community know what tools you are missing, the good practices you think we should be following etc...</p>
+
+<p>Take for instance <a href="http://nodejs.org/">Node.js</a>, it's a port of <a href="http://wiki.github.com/eventmachine/eventmachine/">Ruby's EventMachine</a> / <a href="http://twistedmatrix.com/trac/">Python's twisted</a>. There is no reasons why the Ruby or Python versions could not do what the Javascript version does. However people are getting excited and are jumping ship. What do we do about that? One way would be to identify what makes node more attractive than EventMachine and what needs to be done so we can offer what people are looking for. I asked this question a few weeks ago and the response was that a lot of the Ruby libraries are blocking and having to check is too bothersome. Maybe that's something that the community should be addressing. Node doesn't have that many libraries and people will have to write them, in the mean time we can make our libs non-blocking. Also, let's not forget that this is not a competition and people should choose the best tool for their projects.</p>
+
+<p>Finally, things don't change overnight, as more people encounter the issues you are facing, as we learn from others, part of the community will focus on the problems you are seeing and things will get better. Hopefully, <strong>you</strong> will also be able to contribute and influence the community to build an even better Ruby world.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby object allocation & why you should care]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/07/29/object-allocation-why-you-should-care/"/>
+    <updated>2010-07-29T23:47:50+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/07/29/object-allocation-why-you-should-care</id>
+    <content type="html"><![CDATA[<p>Recently I was tasked with finding how to optimize a web application with heavy traffic. The application (a Rails 2.3.x app) gets about 3 million requests per hour and most of these requests cannot really be easily cached so they go through the entire stack.</p>
+
+<p>This is probably not the case of most web apps out there. None the less, my findings my help you understand Ruby better and maybe think differently about memory management.</p>
+
+<p>This is certainly not an advanced GC blog post, I will try to keep it as simple as possible. My goal is to show you how Ruby memory allocation works and why it can affect your app performance and finally, how can you avoid to allocate to many objects.</p>
+
+<h2>Ruby memory management.</h2>
+
+<p>Rubyists are quite lucky since they don't have to manage the memory themselves. Because developers are lazy and Matz developed his language for people and not machine, memory is managed "magically". Programming should be fun and managing memory isn't really considered fun (ask video game developers or iOS programmers ;)).</p>
+
+<p>So in Ruby, the magical memory management is done by a Garbage Collector. The GC's job is to run and free objects that were previously allocated but not used anymore. Without a GC we would saturate the memory available on the host running the program or would have to deallocate the memory manually. Ruby's GC uses a conservative, stop the world, mark-and-sweep collection mechanism.  More simply, the garbage collection runs when the allocated memory for the process is maxed out. The GC runs and blocks all code from being executed and will free unused objects so new objects can be allocated.</p>
+
+<p>Joe Damato did a great talk on that matter during last RailsConf</p>
+
+<p><a href="http://www.scribd.com/doc/32718051/Garbage-Collection-and-the-Ruby-Heap">Garbage Collection and the Ruby Heap</a></p>
+
+<p>The problem is that Ruby's GC was not designed to support hundred thousand objects allocation per second. Unfortunately, that's exactly what frameworks like Ruby on Rails do, and you might contribute to the problem too without even knowing it.</p>
+
+<h2>Does it really matter?</h2>
+
+<p>I believe it does. In my case improving the object allocation means much better response time, less servers, less support and less headaches. You might think that servers are cheaper than developers. But more servers mean more developer time spent fixing bugs and more IT support. That's why I think, memory management is something Ruby developers should be aware of and should take in consideration, especially the ones writing frameworks, libraries or shared code.</p>
+
+<p>I am using Ruby 1.9 so I could not profile my Rails 2.x app using <a href="http://memprof.com/">memprof</a>, instead I wrote a <a href="http://github.com/mattetti/GC-stats-middleware">simple and basic middleware</a> that keeps track of the memory allocation/deallocation and GC cycles during a web request (Ruby1.9 only). One of my simple Rails2 actions (1 DB call, simple view) is allocating 170,000 objects per requests. Yes, you read right: 170k objects every single request. At 3 million requests/hour, you can imagine that we are spending a LOT of time waiting for the GC. This is obviously not 100% Rails fault as I am sure our code is contributing to the problem. I heard from the memprof guys that Rails was allocating 40k objects. I decided to check Rails3.</p>
+
+<p>After warming up, a basic Rails3 'hello world' app clocks at about <strong>8,500 objects allocated per request</strong>, forcing the GC to run more or less every 6 requests. On my machine (mac pro) the GC takes about 20ms to free the objects. A Rack 'hello world' app clocks at <strong>7 objects</strong> per request and a Sinatra app at <strong>181 objects</strong>. Of course you can't really compare these different libraries/frameworks but that gives you an idea of the price you pay to get more features.</p>
+
+<p>One thing to remember is that the more objects you allocate, the more time you "lose" at code execution. For more developers, it probably doesn't matter much, but if you should still understand that concept especially if you decide to contribute to the OSS community and offer patches, libraries, plugins etc...</p>
+
+<h1>What can I do?</h1>
+
+<p>Be aware that you are allocating  objects, for instance something as simple as 100.times{ 'foo' } allocates 100 string objects (strings are mutable and therefore each version requires its own memory allocation).</p>
+
+<p>Make sure to evaluate the libraries you use, for instance switching a Sinatra XML rendering action from Builder to Nokogiri XML Builder saved us about 12k object allocations (Thanks Aaron Patterson). Make sure that <strong>if </strong>you are using a library allocating a LOT of objects, that other alternatives are not available and your choice is worth paying the GC cost. (you might not have a lot of requests/s or might not care for a few dozen ms per requests). You can use memprof or one of the many existing tools to check on the GC cycles using load tests or in dev mode. Also, be careful to analyze the data properly and to not only look at the first request. <a href="http://twitter.com/akeem">Someone</a> sent me <a href="http://memprof.com/dump/4c52503c7fdeb62cff000001">this memory dump</a> from a Rails3 'hello world' with Ruby 1.8.7 and it shows that Rails is using <a href="http://memprof.com/dump/4c52503c7fdeb62cff000001/detail?where=%7B%7D">331973 objects</a>.  While this is totally true, it doesn't mean that 330k objects are created per request. Instead that means that 330k objects are currently in memory. Rubygems loading already allocate a lot of objects, Rails even more but these objects won't be GC'd and don't matter as much as the ones allocated every single request. The total amount of memory used by a Ruby process isn't that important, however the fluctuation forcing the GC to run often is. This is why my middleware only cares about the allocation change during a request. (The GC should still traverse the entire memory so, smaller is better)</p>
+
+<p>The more object allocation you do at runtime/per request, the more the GC will need to run, the slower your code will be. So this is not a question of memory space, but more of performance. If your framework/ORM/library/plugin allocates too many objects per request maybe you should start by reporting the problem and if you can, offer some patches.</p>
+
+<p>Here are some hints about memory allocation:</p>
+
+<p>Creating a hash object really allocates more than an object, for instance {'joe' => 'male', 'jane' => 'female'} doesn't allocate 1 object but 7. (one hash, 4 strings + 2 key strings) If you can use symbol keys as they won't be garbage collected. However because they won't be GC'd you want to make sure to not use totally dynamic keys like converting the username to a symbol, otherwise you will 'leak' memory.</p>
+
+<p>Looking at a GC cycle in the Rails3 hello world example shows what objects get deallocated:</p>
+
+<blockquote><p>GC run, previous cycle was 6 requests ago.</p></blockquote>
+
+<p>GC 203 invokes. (amount of cycles since the program was started)
+Index   1</p>
+
+<p>Invoke Time(sec)   25.268</p>
+
+<p>Use Size(byte)   4702440</p>
+
+<p>Total Size(byte)   7307264</p>
+
+<p>Total Object   182414</p>
+
+<p>GC Time(ms) 22.35600000000204090611</p>
+
+<h2>56322 freed objects.</h2>
+
+<p><strong>[78%] 44334 freed strings.</strong>
+<strong>[7%] 4325 freed arrays.</strong>
+[0%] 504 freed bignums.
+[1%] 613 freed hashes.
+[0%] 289 freed objects.
+<strong>[5%] 3030 freed parser nodes (eval usage).</strong></p>
+
+<p>I did not list all the object types but it's pretty obvious that the main issue in the case of Rails is string allocation. To a certain extend the allocated arrays and the runtime use of eval are not helping either. (what is being eval'd at runtime anyway?)</p>
+
+<p>If you use the same string in various place of you code, you can "cache" them using a local var, instance variable, class variable or constant. Sometimes you can just replaced them by a symbol and save a few allocations/deallocations per request. Whatever you do tho, make sure there is a real need for it. My rule of thumb is that if some code gets exercised by 80% of the requests, it should be really optimized and avoid extra allocations so the GC won't slow us down.</p>
+
+<h2>What about a better GC?</h2>
+
+<p>That's the easy answer. When I mentioned this problem with Rails, a lot of people told me that I should use JRuby or Rubinius because their GC were much better. Unfortunately, that's not that simple and choosing an alternative implementation requires much further research and tests.</p>
+
+<p>But what annoys me with this solution is that using it is not solving the issue, it's just working around it. Yes, Ruby's GC isn't that great but that's the not the key issue, <strong>the key issue is that some libraries/frameworks allocate way too many objects</strong> and that nobody seems to care (or to even know it). I know that the Ruby Core Team is working on some optimizations and I am sure Ruby will eventually get an improved GC. In the meantime, it's easy to blame Matz, Koichi and the rest of the core team but again, it's ignoring that the root cause, totally uncontrolled memory allocation.</p>
+
+<p><strong>Maybe it's time for us, Rubyists, to think a bit more about our memory usage.</strong></p>
 ]]></content>
   </entry>
   

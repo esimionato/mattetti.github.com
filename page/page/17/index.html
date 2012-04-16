@@ -7,7 +7,7 @@
     <meta name="author" content="Matt Aimonetti">
 
     
-    <meta name="description" content="Merb 1.0 RC5 As you might have noticed, we&#8217;ve been pushing a lot of Release Candidates out the door. The reason is that we want to make sure 1 &hellip;">
+    <meta name="description" content="Yet Another RC Release (Merb 1.0 RC4) Yesterday, Yehuda Katz annouced Merb 1.0 RC3 released and today we re released the same version with a hotfix &hellip;">
     
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
 
@@ -99,62 +99,6 @@
 
 
 	<div id="content" class="inner">
-
-
-    <article class="post">
-    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/11/03/merb-10-rc5/">Merb 1.0 RC5</a></h1>
-    <div class="entry">
-        <p>As you might have noticed, we&#8217;ve been pushing a lot of Release Candidates out the door. The reason is that we want to make sure 1.0 is really ready for showtime!</p>
-
-<p>We are also getting a lot of bug reports that help us focusing on the main issues. Today RC5 was pushed to a RubyForge mirror close to you and <a href="http://yehudakatz.com/2008/11/03/merb-rc5-final-rc/">here is a report from Yehuda Katz</a>, <a href="http://merbivore.com">Merb</a> lead developer.</p>
-
-<p>This is the final RC before we ship 1.0 final at <a href="http://rubyconf.org/">RubyConf</a>. Here is a really quick rundown of the bugfixes and improvement added to this release:</p>
-
-<ul>
-<li><p><a href="http://github.com/brynary/webrat/tree/master">Webrat</a> integration out of the box. (<a href="http://github.com/wycats/merb/tree/master/merb-core/spec/public/webrat/webrat_spec.rb">see example</a>)</p></li>
-<li><p>Improved Merb bundling</p></li>
-<li><p>spec view helpers now use <a href="http://tenderlovemaking.com/2008/10/30/nokogiri-is-released/">nokogiri</a> (with rexml as fallback )</p></li>
-<li><p>new <a href="http://github.com/wycats/merb/tree/master/merb-core/spec/public/test/view_matchers_spec.rb#L16-36">have_selector</a> spec helper using CSS3 compatible selector.</p></li>
-<li><p>The entire Merb spec suite now runs correctly on JRuby &amp; Windows.</p></li>
-<li><p>Once again improved jRuby support.</p></li>
-</ul>
-
-
-<p>In other news, we setup a nightly gem server so people who want to be on Edge don&#8217;t have to deal with git and we call also test gem releases before pushing to RubyForge. More about that coming up during RubyConf.</p>
-
-<p>Talking about <a href="http://rubyconf.org/">RubyConf</a>,Â  <a href="http://yehudakatz.com">Yehuda</a> and <a href="http://merbist.com/about/">I</a> will be in Orlando enjoying a good Ruby meetup. Come and chat with us if you are interested in starting using Merb, or if you have been using Merb. Also, please come and see us if you hate Merb and care tell us why. We&#8217;re looking forward to meet you all.</p>
-
-        
-        
-    </div>
-    <div class="meta">
-        <div class="date updated">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-11-03T18:50:21+01:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2008</time></div>
-        <div class="tags">
-
-<div class="cat">
-  
-    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
-  
-</div>
-
-</div>
-        <div class='vcard author'><small>By <span class='fn'>Matt Aimonetti</span></small></div>
-        
-    </div>
-
-</article>
 
 
     <article class="post">
@@ -388,6 +332,56 @@
 
 
 <time datetime="2008-10-16T22:26:50+02:00" pubdate data-updated="true">Oct 16<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        <div class='vcard author'><small>By <span class='fn'>Matt Aimonetti</span></small></div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/16/preparing-merb-10-rc2/">Preparing Merb 1.0 RC2</a></h1>
+    <div class="entry">
+        <p><a href="http://merbist.com/2008/10/13/merb-10-rc1/">1.0RC1 was released</a> less than a week ago and we are already planning to release RC2 next week or so.</p>
+
+<p>Thanks to all the contributors who reported RC1 bugs and submitted patches. RC2 should iron out most of the small bugs and annoyances encountered.</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;180&#8221; caption=&#8221;Rosemary has a very old reputation for improving memory.&#8221;]<a href="http://flickr.com/photos/geishaboy500/133095382/"><img src="http://farm1.static.flickr.com/56/133095382_75068e1a32_m.jpg" alt="Rosemary has a very old reputation for improving memory." /></a>[/caption]</p>
+
+<p>However, RC2 top priority is to get Merb and DataMapper properly working on Windows. Some members of the .net community offered their help to compile windows native DM drivers. Supporting Windows is not an easy task but we think it is a critical thing to do.</p>
+
+<p>We are also discussing setting up a nightly gem server so people could test Merb edge without having to use git etc..Â  It&#8217;s also a great way for us to test gem dependencies before an official release. The only problem with nightly gems is that you need to have a way to track what version is being installed or what version a user reporting a bug is using. We do have some ideas, but please feel free to add a comment with your suggestions.</p>
+
+<p>On a different note, the <a href="http://wiki.merbivore.com/">new wiki</a> is growing nicely, but we do need more content, as you are experimenting with Merb 1.0RC, please think about sharing your knowledge with others by using the <a href="http://wiki.merbivore.com/">wiki</a>.</p>
+
+<p>Finally, people on Edge are reporting issue with gems not loading properly. The problem is that you have generated an app with hardcoded dependencies (check your config/dependencies.rb file). Your app won&#8217;t load newer gems and therefore migth crash. Make sure to define the proper dependencies. We are working onÂ  documenting this behavior and making the error message clearer.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-16T11:15:27+02:00" pubdate data-updated="true">Oct 16<span>th</span>, 2008</time></div>
         <div class="tags">
 
 <div class="cat">
