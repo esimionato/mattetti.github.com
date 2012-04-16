@@ -1,0 +1,1021 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Matt Aimonetti</title>
+    <meta name="author" content="Matt Aimonetti">
+
+    
+    <meta name="description" content="Controlling iTunes With MacRuby Since Mac OS X v10.5, Apple added a technology called Scripting Bridge which allows to control and communicate with &hellip;">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+
+    <link href="/Matt-Aimonetti/atom.xml" rel="alternate" title="Matt Aimonetti" type="application/atom+xml">
+    <link rel="canonical" href="http://mattetti.github.com/Matt-Aimonetti">
+    <link href="/Matt-Aimonetti/favicon.png" rel="shortcut icon">
+    <link href="/Matt-Aimonetti/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30927742-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+
+<body>
+	<header><div id='meta' class='inner'>
+  <div id="matt-aimonetti" itemscope itemtype="http://data-vocabulary.org/Person">
+    <img class="photo left" src="/Matt-Aimonetti/images/matt_aimonetti.jpg" />
+    <h1 class="left"><a itemprop="name" href="/Matt-Aimonetti/">Matt Aimonetti</a></h1>
+    <br>
+    <ul class='left'>
+      <li><a href='http://www.linkedin.com/in/mattaimonetti'>Software Architecture</a> at <span itemprop="affiliation">LivingSocial</span></li>
+      <li><a href='http://www.oreillynet.com/pub/au/4385'>Author</a> at <span itemprop="affiliation">O'Reilly</span></li>
+      <li>Open-source <a href="/articles/archives">evangelist</a></li>
+      <li><a href="https://github.com/mattetti">Web engineer</a></li>
+    </ul>
+  <nav class="menu left"><ul class="main">
+	<li><a href="/Matt-Aimonetti/">Articles</a></li>
+	<li><a href="/Matt-Aimonetti/posts/archives">Archives</a></li>
+</ul>
+</nav>
+  <div class="right">
+    <form class="search right" action="http://google.com/search" method="get">
+      <input class="left" type="text" name="q" results="0">
+      <input type="hidden" name="q" value="site:mattetti.github.com/Matt-Aimonetti">
+    </form>
+    <div class="social right">
+      
+      
+      <a class="google" rel='me' href="https://plus.google.com/101114877505962271216?rel=author" title="Google+">Google+</a>
+      
+      
+      <a class="twitter" rel='me' href="http://twitter.com/merbist" title="Twitter">Twitter</a>
+      
+      
+      <a class="github" rel='me' href="https://github.com/mattetti" title="GitHub">GitHub</a>
+      
+      
+      
+      <a class="linkedin" rel='me' href="http://www.linkedin.com/in/mattaimonetti" title="Linkedin">Linkedin</a>
+      
+      
+      <a class="rss" rel='me' href="/Matt-Aimonetti/atom.xml" title="RSS">RSS</a>
+      
+    </div>
+  </div>
+</div>
+
+</header>
+	
+<!--
+<div id="banner" class="inner">
+	<div class="container">
+		<ul class="feed"></ul>
+	</div>
+	<small><a href="http://twitter.com/merbist">merbist</a> @ <a href="http://twitter.com">Twitter</a></small>
+	<div class="loading">Loading...</div>
+</div>
+<script src="/Matt-Aimonetti/javascripts/twitter.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('#banner').getTwitterFeed('merbist', 0, false);
+	})(jQuery);
+</script>
+-->
+
+
+	<div id="content" class="inner">
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2010/01/17/controlling-itunes-with-macruby/">Controlling iTunes With MacRuby</a></h1>
+    <div class="entry">
+        <p>Since Mac OS X v10.5, Apple added a technology called Scripting Bridge which allows to control and communicate with scriptable applications such as Mail, iChat or iTunes.</p>
+
+<p>A few weeks back, <a href="http://merbist.com/2009/12/31/im-new-year-count-down-with-macruby/">I showed how to control iChat</a> with MacRuby. This time I&#8217;m going to show you how to control iTunes.</p>
+
+<p>Here is a small script that I wrote to wake me up in music every morning.</p>
+
+<pre><code>#!/usr/local/bin/macruby
+framework 'Foundation'
+framework 'ScriptingBridge'
+
+itunes = SBApplication.applicationWithBundleIdentifier("com.apple.itunes")
+load_bridge_support_file 'iTunes.bridgesupport'
+itunes.run
+
+class SBElementArray
+  def [](value)
+    self.objectWithName(value)
+  end
+end
+
+itunes.stop
+playlist = itunes.sources["Library"].userPlaylists["morning"]
+playlist.playOnce(false) if playlist
+</code></pre>
+
+<p>The idea is that I have a Mac Mini streaming music through speakers connected to an AirportExpress in my bedroom.</p>
+
+<p>Let&#8217;s go through the script quickly.</p>
+
+<p>We start by loading two frameworks, Foundation and ScriptingBridge.
+Now that we have ScriptingBridge loaded, we can control iTunes. To do that, we use:
+SBApplication.applicationWithBundleIdentifier(&#8220;com.apple.itunes&#8221;)
+We then load a bridgesupport file that contains the enumerated constants from the iTunes scriptable dictionary.</p>
+
+<p>We make sure iTunes is running by calling #run on the application object.</p>
+
+<p>Before using iTune scriptable interface, we are making the API a bit nicer, it&#8217;s totally unnecessary but it makes our code look better.</p>
+
+<p>itunes.sources returns an instance of <a href="http://developer.apple.com/mac/library/documentation/cocoa/Reference/SBElementArray_Class/SBElementArray/SBElementArray.html">SBElementArray</a> which is not really an array nor a hash.</p>
+
+<p>The rest of the code is pretty simple, we find the library, find the playlist called &#8216;morning&#8217; and play it if found.</p>
+
+<p>So you might wonder two things:</p>
+
+<ul>
+<li><p>What is the iTunes.bridgesupport file?</p></li>
+<li><p>How do you know what methods are available to control iTunes?</p></li>
+</ul>
+
+
+<h4>bridgesupport file</h4>
+
+<p>The bridgesupport file is important since it defines the required constants.
+Apple provides a metadata generator called gen_bridge_metadata which generates a bridgesupport file.</p>
+
+<p>Here is what the documentation says:</p>
+
+<pre><code>$ man gen_bridge_metadata
+
+
+
+
+NAME
+gen_bridge_metadata -- Objective-C Bridges Metadata Generator
+
+SYNOPSIS
+gen_bridge_metadata [options...] headers...
+
+DESCRIPTION
+gen_bridge_metadata is a tool that generates bridging metadata information for a given framework or set of head-
+ers. The Objective-C bridges supported in Mac OS X, such as RubyCocoa (Ruby) and PyObjC (Python), read this
+information at runtime.
+
+Metadata files describe the parts of an Objective-C framework that the bridges cannot automatically handle. These
+are primarily the ANSI C elements of the framework -- functions, constants, enumerations, and so on -- but also
+include special cases such as functions or methods that accept pointer-like arguments. These special cases must
+be manually specified in separate files called exceptions. The gen_bridge_metadata tool can then read in the
+exceptions file when it generates the framework metadata.
+
+The file extension used for metadata files should be .bridgesupport.
+
+Certain elements, such as inline functions, cannot be described in the metadata files. It is therefore required
+to generate a dynamic library in order to make the bridges use them. The gen_bridge_metadata tool can take care
+of that for you.
+
+The file extension for the dynamic libraries should be .dylib.
+
+You should install metadata files in one of three filesystem locations. For example, for a framework named
+MyFramework that is installed as /Library/Frameworks/MyFramework.framework, you can install the
+MyFramework.bridgesupport and MyFramework.dylib files in one of the following possible locations, in order of
+priority:
+
+o   /Library/Frameworks/MyFramework/Resources/BridgeSupport
+
+o   /Library/BridgeSupport
+
+o   ~/Library/BridgeSupport
+</code></pre>
+
+<p>The problem is that we don&#8217;t have a framework or header file to generate a bridgesupport file for.
+So, what we need a header file for iTunes, turns out we have a tool to do that:</p>
+
+<pre><code>$ sdef /Applications/iTunes.app | sdp -fh --basename iTunes
+</code></pre>
+
+<p>I won&#8217;t go in the details of what sdef and sdp do, just check their manual page.
+Running the command above will create a iTunes.h which we can use to create a bridgesupport file.
+Here is the generated header file: http://gist.github.com/279657</p>
+
+<p>Now, let&#8217;s create a bidgesupport file:</p>
+
+<pre><code>$ gen_bridge_metadata -c '-I.' iTunes.h &gt; iTunes.bridgesupport
+</code></pre>
+
+<p>An that&#8217;s how we get the bridgesupport file. (see file: <a href="http://gist.github.com/279698">http://gist.github.com/279698</a>)</p>
+
+<h4>iTunes Documentation</h4>
+
+<p>The easiest way to understand what&#8217;s available to you is to open iTunes&#8217; dictionary in the AppleScript Editor.</p>
+
+<p><img src="http://img.skitch.com/20100118-fe5c3224jd8xfhciwqxpy4hptc.jpg" alt="iTunes API by Matt Aimonetti" /></p>
+
+<p>Otherwise you can study the iTunes.h file.</p>
+
+<p>I wrote a very dumb parser to give you an idea of the methods and properties available when controlling iTunes via ScriptingBridge, here is the  output:</p>
+
+<pre><code>Class: iTunesPrintSettings
+Properties:
+copies (the number of copies of a document to be printed)
+collating (Should printed copies be collated?)
+startingPage (the first page of the document to be printed)
+endingPage (the last page of the document to be printed)
+pagesAcross (number of logical pages laid across a physical page)
+pagesDown (number of logical pages laid out down a physical page)
+errorHandling (how errors are handled)
+requestedPrintTime (the time at which the desktop printer should print the document)
+printerFeatures (printer specific options)
+faxNumber (for fax number)
+targetPrinter (for target printer)
+
+Method: printPrintDialog:(BOOL)printDialog withProperties:(iTunesPrintSettings *)withProperties kind:(iTunesEKnd)kind theme:(NSString *)theme
+Returned: void
+Print the specified object(s)
+----
+Method: close
+Returned: void
+Close an object
+----
+Method: delete
+Returned: void
+Delete an element from an object
+----
+Method: duplicateTo:(SBObject *)to
+Returned: SBObject
+Duplicate one or more object(s)
+----
+Method: exists
+Returned: BOOL
+Verify if an object exists
+----
+Method: open
+Returned: void
+open the specified object(s)
+----
+Method: playOnce:(BOOL)once
+Returned: void
+play the current track or the specified track or file.
+----
+
+Class: iTunesApplication
+Properties:
+currentEncoder (the currently selected encoder (MP3, AIFF, WAV, etc.))
+currentEQPreset (the currently selected equalizer preset)
+currentPlaylist (the playlist containing the currently targeted track)
+currentStreamTitle (the name of the current song in the playing stream (provided by streaming server))
+currentStreamURL (the URL of the playing stream or streaming web site (provided by streaming server))
+currentTrack (the current targeted track)
+currentVisual (the currently selected visual plug-in)
+EQEnabled (is the equalizer enabled?)
+fixedIndexing (true if all AppleScript track indices should be independent of the play order of the owning playlist.)
+frontmost (is iTunes the frontmost application?)
+fullScreen (are visuals displayed using the entire screen?)
+name (the name of the application)
+mute (has the sound output been muted?)
+playerPosition (the player’s position within the currently playing track in seconds.)
+playerState (is iTunes stopped, paused, or playing?)
+selection (the selection visible to the user)
+soundVolume (the sound output volume (0 = minimum, 100 = maximum))
+version (the version of iTunes)
+visualsEnabled (are visuals currently being displayed?)
+visualSize (the size of the displayed visual)
+
+Method: browserWindows
+Returned: SBElementArray
+----
+Method: encoders
+Returned: SBElementArray
+----
+Method: EQPresets
+Returned: SBElementArray
+----
+Method: EQWindows
+Returned: SBElementArray
+----
+Method: playlistWindows
+Returned: SBElementArray
+----
+Method: sources
+Returned: SBElementArray
+----
+Method: visuals
+Returned: SBElementArray
+----
+Method: windows
+Returned: SBElementArray
+----
+Method: printPrintDialog:(BOOL)printDialog withProperties:(iTunesPrintSettings *)withProperties kind:(iTunesEKnd)kind theme:(NSString *)theme
+Returned: void
+Print the specified object(s)
+----
+Method: run
+Returned: void
+run iTunes
+----
+Method: quit
+Returned: void
+quit iTunes
+----
+Method: add:(NSArray *)x to:(SBObject *)to
+Returned: iTunesTrack
+add one or more files to a playlist
+----
+Method: backTrack
+Returned: void
+reposition to beginning of current track or go to previous track if already at start of current track
+----
+Method: convert:(NSArray *)x
+Returned: iTunesTrack
+convert one or more files or tracks
+----
+Method: fastForward
+Returned: void
+skip forward in a playing track
+----
+Method: nextTrack
+Returned: void
+advance to the next track in the current playlist
+----
+Method: pause
+Returned: void
+pause playback
+----
+Method: playOnce:(BOOL)once
+Returned: void
+play the current track or the specified track or file.
+----
+Method: playpause
+Returned: void
+toggle the playing/paused state of the current track
+----
+Method: previousTrack
+Returned: void
+return to the previous track in the current playlist
+----
+Method: resume
+Returned: void
+disable fast forward/rewind and resume playback, if playing.
+----
+Method: rewind
+Returned: void
+skip backwards in a playing track
+----
+Method: stop
+Returned: void
+stop playback
+----
+Method: update
+Returned: void
+update the specified iPod
+----
+Method: eject
+Returned: void
+eject the specified iPod
+----
+Method: subscribe:(NSString *)x
+Returned: void
+subscribe to a podcast feed
+----
+Method: updateAllPodcasts
+Returned: void
+update all subscribed podcast feeds
+----
+Method: updatePodcast
+Returned: void
+update podcast feed
+----
+Method: openLocation:(NSString *)x
+Returned: void
+Opens a Music Store or audio stream URL
+----
+
+Class: iTunesItem
+Properties:
+container (the container of the item)
+index (The index of the item in internal application order.)
+name (the name of the item)
+persistentID (the id of the item as a hexidecimal string. This id does not change over time.)
+
+Method: id
+Returned: NSInteger
+the id of the item
+----
+Method: printPrintDialog:(BOOL)printDialog withProperties:(iTunesPrintSettings *)withProperties kind:(iTunesEKnd)kind theme:(NSString *)theme
+Returned: void
+Print the specified object(s)
+----
+Method: close
+Returned: void
+Close an object
+----
+Method: delete
+Returned: void
+Delete an element from an object
+----
+Method: duplicateTo:(SBObject *)to
+Returned: SBObject
+Duplicate one or more object(s)
+----
+Method: exists
+Returned: BOOL
+Verify if an object exists
+----
+Method: open
+Returned: void
+open the specified object(s)
+----
+Method: playOnce:(BOOL)once
+Returned: void
+play the current track or the specified track or file.
+----
+Method: reveal
+Returned: void
+reveal and select a track or playlist
+----
+
+Class: iTunesPlaylist
+Properties:
+duration (the total length of all songs (in seconds))
+name (the name of the playlist)
+parent (folder which contains this playlist (if any))
+shuffle (play the songs in this playlist in random order?)
+size (the total size of all songs (in bytes))
+songRepeat (playback repeat mode)
+specialKind (special playlist kind)
+time (the length of all songs in MM:SS format)
+visible (is this playlist visible in the Source list?)
+
+Method: tracks
+Returned: SBElementArray
+----
+Method: moveTo:(SBObject *)to
+Returned: void
+Move playlist(s) to a new location
+----
+Method: searchFor:(NSString *)for_ only:(iTunesESrA)only
+Returned: iTunesTrack
+search a playlist for tracks matching the search string. Identical to entering search text in the Search field in iTunes.
+----
+
+Class: iTunesAudioCDPlaylist
+Properties:
+artist (the artist of the CD)
+compilation (is this CD a compilation album?)
+composer (the composer of the CD)
+discCount (the total number of discs in this CD’s album)
+discNumber (the index of this CD disc in the source album)
+genre (the genre of the CD)
+year (the year the album was recorded/released)
+
+Method: audioCDTracks
+Returned: SBElementArray
+----
+
+Class: iTunesDevicePlaylist
+Method: deviceTracks
+Returned: SBElementArray
+----
+
+Class: iTunesLibraryPlaylist
+Method: fileTracks
+Returned: SBElementArray
+----
+Method: URLTracks
+Returned: SBElementArray
+----
+Method: sharedTracks
+Returned: SBElementArray
+----
+
+Class: iTunesRadioTunerPlaylist
+Method: URLTracks
+Returned: SBElementArray
+----
+
+Class: iTunesSource
+Properties:
+capacity (the total size of the source if it has a fixed size)
+freeSpace (the free space on the source if it has a fixed size)
+kind ()
+
+Method: audioCDPlaylists
+Returned: SBElementArray
+----
+Method: devicePlaylists
+Returned: SBElementArray
+----
+Method: libraryPlaylists
+Returned: SBElementArray
+----
+Method: playlists
+Returned: SBElementArray
+----
+Method: radioTunerPlaylists
+Returned: SBElementArray
+----
+Method: userPlaylists
+Returned: SBElementArray
+----
+Method: update
+Returned: void
+update the specified iPod
+----
+Method: eject
+Returned: void
+eject the specified iPod
+----
+
+Class: iTunesTrack
+Properties:
+album (the album name of the track)
+albumArtist (the album artist of the track)
+albumRating (the rating of the album for this track (0 to 100))
+albumRatingKind (the rating kind of the album rating for this track)
+artist (the artist/source of the track)
+bitRate (the bit rate of the track (in kbps))
+bookmark (the bookmark time of the track in seconds)
+bookmarkable (is the playback position for this track remembered?)
+bpm (the tempo of this track in beats per minute)
+category (the category of the track)
+comment (freeform notes about the track)
+compilation (is this track from a compilation album?)
+composer (the composer of the track)
+databaseID (the common, unique ID for this track. If two tracks in different playlists have the same database ID, they are sharing the same data.)
+dateAdded (the date the track was added to the playlist)
+objectDescription (the description of the track)
+discCount (the total number of discs in the source album)
+discNumber (the index of the disc containing this track on the source album)
+duration (the length of the track in seconds)
+enabled (is this track checked for playback?)
+episodeID (the episode ID of the track)
+episodeNumber (the episode number of the track)
+EQ (the name of the EQ preset of the track)
+finish (the stop time of the track in seconds)
+gapless (is this track from a gapless album?)
+genre (the music/audio genre (category) of the track)
+grouping (the grouping (piece) of the track. Generally used to denote movements within a classical work.)
+kind (a text description of the track)
+longDescription ()
+lyrics (the lyrics of the track)
+modificationDate (the modification date of the content of this track)
+playedCount (number of times this track has been played)
+playedDate (the date and time this track was last played)
+podcast (is this track a podcast episode?)
+rating (the rating of this track (0 to 100))
+ratingKind (the rating kind of this track)
+releaseDate (the release date of this track)
+sampleRate (the sample rate of the track (in Hz))
+seasonNumber (the season number of the track)
+shufflable (is this track included when shuffling?)
+skippedCount (number of times this track has been skipped)
+skippedDate (the date and time this track was last skipped)
+show (the show name of the track)
+sortAlbum (override string to use for the track when sorting by album)
+sortArtist (override string to use for the track when sorting by artist)
+sortAlbumArtist (override string to use for the track when sorting by album artist)
+sortName (override string to use for the track when sorting by name)
+sortComposer (override string to use for the track when sorting by composer)
+sortShow (override string to use for the track when sorting by show name)
+size (the size of the track (in bytes))
+start (the start time of the track in seconds)
+time (the length of the track in MM:SS format)
+trackCount (the total number of tracks on the source album)
+trackNumber (the index of the track on the source album)
+unplayed (is this track unplayed?)
+videoKind (kind of video track)
+volumeAdjustment (relative volume adjustment of the track (-100% to 100%))
+year (the year the track was recorded/released)
+
+Method: artworks
+Returned: SBElementArray
+----
+
+Class: iTunesFileTrack
+Properties:
+location (the location of the file represented by this track)
+
+Method: refresh
+Returned: void
+update file track information from the current information in the track’s file
+----
+
+Class: iTunesURLTrack
+Properties:
+address (the URL for this track)
+
+Method: download
+Returned: void
+download podcast episode
+----
+
+Class: iTunesUserPlaylist
+Properties:
+shared (is this playlist shared?)
+smart (is this a Smart Playlist?)
+
+Method: fileTracks
+Returned: SBElementArray
+----
+Method: URLTracks
+Returned: SBElementArray
+----
+Method: sharedTracks
+Returned: SBElementArray
+----
+</code></pre>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-01-17T19:54:19+01:00" pubdate data-updated="true">Jan 17<span>th</span>, 2010</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/macruby/'>macruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2010/01/05/amazon-kindle-2/">Amazon Kindle 2</a></h1>
+    <div class="entry">
+        <p>For Noël, my wife got me a new toy: <a href="http://www.amazon.com/gp/product/B0015T963C?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0015T963C">the Amazon Kindle 2</a>.</p>
+
+<p><a href="http://www.amazon.com/gp/product/B0015T963C?tag=merbist-20"><img src="http://placeholder.apture.com/ph/360x280_AmazonProduct/" alt="" /></a></p>
+
+<h2>Kindle vs Nook</h2>
+
+<p>Before my wife bought what became my new favorite gadget, we checked on the Barnes &amp; Noble Nook.</p>
+
+<p><img src="http://farm5.static.flickr.com/4012/4176062087_704a33b9fd_m.jpg" alt="" /></p>
+
+<p>The primary problem with the Nook was that it was out of stock. That pushed me to dig deeper and really compare both devices.</p>
+
+<p>The Nook had some interesting features like wifi, small color screen and the book lending feature.</p>
+
+<p>However, I don&#8217;t really care about a small, clunky extra color screen since I just want to read books. The wifi is nice&#8230; but what am I going to do with it? Lending books is a cool feature, but this feature isn&#8217;t available for all books and is apparently seriously limited.</p>
+
+<p>So I decided to focus on what I really needed instead of what I could use.</p>
+
+<ul>
+<li><p>The main purpose of an e-book is reading, page loading should be fast and the user experience should be at least as good as when reading a &#8216;real&#8217; book.</p></li>
+<li><p>I need to be able to have a great choice of books and if possible in multiple languages.</p></li>
+<li><p>I would like to be able to read the <a href="http://www.safaribooksonline.com/">safarionline</a> books that I can access online.</p></li>
+</ul>
+
+
+<p>From what I read almost everywhere, the nook is slow and a bit buggy (it&#8217;s a first generation after all) and doesn&#8217;t come with a web browser. I also checked on the ebooks available on Amazon and Barnes &amp; Noble. Amazon has way more ebooks and that&#8217;s really what motivated my decision. The other thing is that Amazon is present world wide and I expect them to start selling more ebooks in French and Spanish.</p>
+
+<p>The other thing that pushed me to buy a Kindle was the fact that I know so many people having one and being so pleased. During a recent trip to San Diego, <a href="http://www.linkedin.com/in/yehudakatz">Yehuda Katz</a> told me about how much he loves his Kindle and he recommended a book to read. I started reading the book on my iPhone (using kindle for iPhone) and was really wanted a bigger screen.</p>
+
+<h2>Kindle vs iTablet</h2>
+
+<p>A lot of people asked me why I didn&#8217;t wait for the big announcement of the iTablet because it might be a Kindle killer.</p>
+
+<p>First, the iTablet is currently just a rumor and if we would believe the rumor, the iTablet will sell around $1,000 vs $250 for a kindle. The tablet will probably do a lot of cool stuff my e-reader can&#8217;t do&#8230; but I don&#8217;t care I chose the kindle because I wanted a simple device to read book and only do that. Actually, the  kindle + iphone combo works great for me. I used to read a lot but because I have been moving so many times I started reading less because I always get rid of my books. Also, when traveling a lot, carrying your books with you is a pain. (especially now that most airlines charge you per bag)</p>
+
+<h2>Kindle and tech books/documentation.</h2>
+
+<p>If you want a kindle to read tech books, don&#8217;t get a 6&#8221;, get the kindle DX instead. Even though the 6&#8221; natively supports PDF files, the text is usually too small and the Kindle doesn&#8217;t support zooming (yet).</p>
+
+<p><a href="http://www.amazon.com/gp/product/B0015TCML0?tag=merbist-20"><img src="http://placeholder.apture.com/ph/360x280_AmazonProduct/" alt="" /></a></p>
+
+<p>The DX is perfect to read PDFs because the ratio matches the print expectations. I was thinking about converting all the Cocoa docs to a kindle friendly format since the kindle supports search etc.. But the truth is that it&#8217;s not worth it. The display on a 6&#8221; screen is clunky, it just doesn&#8217;t feel right. I didn&#8217;t try any of the pragprog ebooks but something tells me they will just look better on the DX.</p>
+
+<p>Since I wanted a kindle to read books and not browse tech documentation, I&#8217;m still really happy with 6&#8221;.</p>
+
+<p>If you also have kindle or are planning on buying one soon, here are two books I&#8217;ve been enjoying reading:</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignleft&#8221; width=&#8221;280&#8221; caption=&#8221;Flashforward by Robert J. Sawyer&#8221;]<a href="http://www.amazon.com/Flashforward-ebook/dp/B002NANLCE/ref=sr_1_1?ie=UTF8&amp;s=books&amp;qid=1262741423&amp;sr=8-1-catcorr"><img src="http://ecx.images-amazon.com/images/I/51qntNYMMEL._SL500_AA246_PIkin2,BottomRight,-12,34_AA280_SH20_OU01_.jpg" alt="" /></a>[/caption]</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;280&#8221; caption=&#8221;The Talent Code by Daniel Coyle&#8221;]<a href="http://www.amazon.com/Talent-Code-Greatness-Grown-ebook/dp/B0026OR1UK/ref=sr_1_1?ie=UTF8&amp;s=books&amp;qid=1262741566&amp;sr=1-1"><img src="http://ecx.images-amazon.com/images/I/41CluL6Fo9L._SL500_AA246_PIkin2,BottomRight,-13,34_AA280_SH20_OU01_.jpg" alt="" /></a>[/caption]</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-01-05T17:36:12+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2010</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/12/31/im-new-year-count-down-with-macruby/">IM New Year Countdown With MacRuby</a></h1>
+    <div class="entry">
+        <p>Here is the geekiest way I found to wish Happy New Year to my IM contacts:</p>
+
+<p><img src="http://img.skitch.com/20091231-c9t2n9889rxiinux6qsfhqtxfq.jpg" alt="" /></p>
+
+<pre><code>framework 'ScriptingBridge'
+app = SBApplication.applicationWithBundleIdentifier("com.apple.iChat")
+original_status = app.statusMessage
+new_year = Time.mktime(2010, 1, 1, 0, 0)
+
+loop do
+  now = Time.now
+  time_left = (new_year - now).ceil
+  if time_left &gt; 0
+    app.statusMessage = "#{time_left} seconds left until 2010 (EST)"
+  else
+    app.statusMessage = "Happy New Year 2010!"
+    exit
+  end
+  sleep(1)
+end
+</code></pre>
+
+<p>If you are alone at home playing WOW,  you can also trigger iTunes to play a mp3 file with crowd noise and people shouting &#8217;<strong>Happy New Year 2010</strong>&#8217;!</p>
+
+<p><img src="http://img.skitch.com/20091231-c5j9dhhy46t76gh26fu6a26h7c.jpg" alt="" /></p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-31T10:25:50+01:00" pubdate data-updated="true">Dec 31<span>st</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/macruby/'>macruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/12/29/fun-with-macruby/">Fun With MacRuby</a></h1>
+    <div class="entry">
+        <p>To be ready for 2010, I&#8217;m taking some time off relaxing and spending time with my family in Florida.</p>
+
+<p>During my free time, I&#8217;ve been reading, catching up on movies and TV shows and worked on the MacRuby book that I am writing for O&#8217;Reilly.</p>
+
+<p>I wrote a bunch of small apps, played with various APIs and every single time I was amazed by all the goodies Apple makes available to developers. My most recent discovery is very simple but I wanted to share it with you.</p>
+
+<p>I often type text in English, French and Spanish and I even mix the languages from time to time. SnowLeopard comes with a great spellchecker that auto detects the language I&#8217;m typing in and is most of the time correct. It&#8217;s a very impressive feature and I was wondering if, as a MacRuby developer, I could use one of Apple&#8217;s lib to detect what language is being used.  I dug through the documentation but didn&#8217;t find anything. I started looking at some header files and found the API to use :)</p>
+
+<pre><code>framework 'Foundation'
+class String
+  def language
+    CFStringTokenizerCopyBestStringLanguage(self, CFRangeMake(0, self.size))
+  end
+end
+
+puts "Bonne année!".language
+# =&gt; "fr"
+puts "Happy new year!".language
+# =&gt; "en"
+puts "¡Feliz año nuevo!".language
+# =&gt; "es"
+puts "Felice anno nuovo!".language
+# =&gt; "it"
+puts "أعياد سعيدة".language
+# =&gt; "ar"
+puts "明けましておめでとうございます。".language
+# =&gt; "ja"
+</code></pre>
+
+<p>The documentation says that the result is not guaranteed to be accurate and that typically 200-400 characters are required to reliably guess the language of a string. (<a href="http://developer.apple.com/mac/library/documentation/CoreFoundation/Reference/CFStringTokenizerRef/Reference/reference.html#//apple_ref/c/func/CFStringTokenizerCopyBestStringLanguage">CFStringTokenizer Doc</a>)</p>
+
+<p>Probably not the most useful piece of code, but really cool none the less :)</p>
+
+<p>Happy new year!</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-29T19:09:45+01:00" pubdate data-updated="true">Dec 29<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/macruby/'>macruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/11/30/lots-of-rubies-now-what/">Lots of Rubies, Now What?</a></h1>
+    <div class="entry">
+        <p>If you were at RubyConf 2009 or looked at the schedule, you saw that the big thing happening in the Ruby scene is the maturation of a many of the Ruby implementations:
+BlueRuby, HotRuby, IronRuby, JRuby, MacRuby, Maglev, MRI, REE, Rubinius, SmallRuby&#8230;
+Ruby developers really have plenty of choice when it comes to choosing an alternative Ruby implementation.</p>
+
+<p>Is that a bad thing?</p>
+
+<p>Turns out, Matz , Ruby author mentioned one ore time during RubyConf that it was actually a good thing for the Ruby ecosystem.</p>
+
+<p>But maybe we should take a step back and look at the big picture. So here are some of my thoughts on the topic. <em>(disclaimer: being part of the MacRuby team, I&#8217;m certainly biased)</em></p>
+
+<p><strong>Stop comparing alternative Ruby implementations against Ruby 1.8.x.</strong></p>
+
+<p>Even though a lot of people are still using Ruby 1.8.x, it&#8217;s totally unfair to compare against such an old version of Matz&#8217;s Ruby.
+Ruby 1.9 is what people should compare against and believe me, Ruby 1.9.2 is going to change the game (much faster, cleaned up version).
+Hopefully, all the Ruby alternative implementations will quickly become 1.9 compatible.</p>
+
+<p>(On a site note, <a href="http://weblog.rubyonrails.org/2009/11/30/ruby-on-rails-2-3-5-released">Rails 2.3.5 was released</a> a few days ago which fixes some of the last few remaining Ruby 1.9 bugs)</p>
+
+<p><strong>Don&#8217;t trust the benchmarks</strong></p>
+
+<p>As we all know, <a href="http://en.wikipedia.org/wiki/Lies,_damned_lies,_and_statistics">there are lies, damn lies and statistics</a>. Evan Phoenix explained that very clearly with lots of examples during his <a href="http://rubyconf2009.confreaks.com/">RubyConf talk</a> and I totally agree with him.
+Micro benchmarks only help implementers know where they are standing and find performance issue.
+Let&#8217;s take a very simple example: <a href="http://jruby.org/">JRuby</a>.
+What you might not know is that most JRuby benchmarks are usually &#8216;warmed up&#8217;.  Basically, to get the results you see in most reported benchmarks, you need to run the benchmark in a loop X amount of times and then run the benchmark. The reason for that is that JRuby uses HotSpot which needs to process the code to optimize the JITting and finally get your code to run faster.
+The problem is that it is not a fair comparison. I was benchmarking Rails3 for instance and JRuby starts way slower than Ruby 1.8.6 and takes a little while to get as fast/faster than 1.9.1.
+This is something you need to take in consideration since each deployment will slow down your app and you probably shouldn&#8217;t use JRuby if you are not using long running processes.
+Another example would be MacRuby, even though the MacRuby project never released any benchmarks, it&#8217;s known to be a <em>fast</em> implementation.
+Currently, the allocation of objects in MacRuby is actually still a bit costly and if you benchmark that, you can <em>show</em> that MacRuby is slow. Other operations are super optimized and both Rubinius and MacRuby will be way faster than anyone else. (check Phoenix&#8217;s talk at Ruby conf for more examples)
+So, before choosing an implementation for performance reasons, benchmark against the code you are going to use.</p>
+
+<p><strong>There is only one real original Ruby</strong></p>
+
+<p>I think nobody will disagree with the fact that there is only one Ruby reference and that&#8217;s Matz.
+Therefore is only one &#8220;real&#8221; Ruby and that is Matz&#8217;s. (Matz actually disagreed with me when I said that, since all the other implementations are also &#8220;real&#8221; but you get the point)
+There is nothing wrong with Ruby&#8217;s alternatives but they stay alternatives to the original
+MRI might not be the best option for every single case out there but it is and will stay the reference.</p>
+
+<p>During RubyConf, I was joking with Matz and Koichi that maybe they should claim a Ruby tax to the Ruby implementations.
+The reality is that Ruby is maintained by 5 to 10 contributors, most of them doing that on the side of their full time job.
+Most of the other implementations have full time staff working hard on their implementations. That&#8217;s exciting but sad at the same time.</p>
+
+<p>During the different talks given by the Ruby core team, it was clear that they really want to bridge the West/East gap and asked for help. It&#8217;s very honorable on their part and I hope we will see more contributions coming from outside Japan.</p>
+
+<p>Finally, I think that even if people work hard to write the best Ruby implementation ever, let&#8217;s not forget to respect Matz&#8217;s project, team and achievements. People spent hours/weeks/months creating the Ruby language we love and even though there are some aspects that could be and are being improved, let&#8217;s not forget that when criticizing/comparing their work.</p>
+
+<p><strong>There is not only one way to do things</strong></p>
+
+<p>I don&#8217;t know where that&#8217;s coming from, but some people in our community seem to believe that there is only one way to do things and if you don&#8217;t do it their way, you do it wrong.
+I personally have a hard time believing that and I even think it goes against what Ruby was designed for. (However, I must admit that sometimes I did/do think that some approaches were totally wrong :p)
+It reminds me of people trying to convince you that God exists, other people trying to convince you that their religion is the only true one, or finally the other people trying to convince believers that they are wrong.
+Maybe it is just that as humans we have a hard time dealing with people coming to a different conclusion than us and therefore we have to convince them that we are right and they are wrong.</p>
+
+<p>The way I see it, for any new Ruby project, you should start be using with Ruby1.9. If it doesn&#8217;t fit your needs, then, consider an alternative. Here is how I look at the other alternatives (feel free to disagree):</p>
+
+<ul>
+<li><p><a href="https://wiki.sdn.sap.com/wiki/display/Research/BlueRuby">BlueRuby</a> - use if you are writing a SAP app</p></li>
+<li><p><a href="http://hotruby.yukoba.jp/">HotRuby</a> - use if you want to use Ruby to write a Flash app</p></li>
+<li><p><a href="http://ironruby.net/">IronRuby</a> - use it if you want to integrate with .NET and/or write a silverlight app</p></li>
+<li><p><a href="http://jruby.org/">JRuby</a> - use if you want to integrate with the Java world</p></li>
+<li><p><a href="http://macruby.org">MacRuby</a> - use it if you want to integrate with Cocoa/want a native OSX application</p></li>
+<li><p><a href="http://maglev.gemstone.com/">Maglev</a> - use if you want to use an object persistence layer and a distributed shared cache</p></li>
+<li><p><a href="http://www.rubyenterpriseedition.com/">REE</a> - use if you have a ruby 1.8 web app that uses too much memory</p></li>
+<li><p><a href="http://rubini.us">Rubinius</a> - use if you want to know what&#8217;s going on in your code</p></li>
+<li><p><a href="http://smalltalk.felk.cvut.cz/projects/smallruby">SmallRuby</a> - don&#8217;t use it yet, but keep an eye on it</p></li>
+</ul>
+
+
+<p>This is the way I see the various existing implementations and I think this is where they shine and why they were created in the first place. They are all complimentary and help bring the Ruby language further. The goal is always the same.</p>
+
+<p><strong>The future is exciting</strong></p>
+
+<p>Ruby is getting everywhere or almost. Matz&#8217;s Ruby is going to get multiVM support, various other improvements and get even faster and faster.
+Alternative implementations are getting more and more mature and they grow the community by bringing people from different communities (.NET, java, obj-c/cocoa)</p>
+
+<p>At the end of the day, we are all beneficiaries of the work done by all the implementers, thank you guys and keep up the good work!</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-30T13:38:53+01:00" pubdate data-updated="true">Nov 30<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/ruby/'>ruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+<nav id="pagenavi">
+    
+        <a href="/Matt-Aimonetti/page/page/7/" class="prev">Prev</a>
+    
+    
+        <a href="/Matt-Aimonetti/page/page/9/" class="next">Next</a>
+    
+    <a href="/Matt-Aimonetti/articles/archives" class="center">Archives</a>
+</nav>
+</div>
+	<footer class="inner"><div id='copyright-notice'>Copyright &copy; 2012 Matt Aimonetti</div>
+</footer>
+	<script src="/Matt-Aimonetti/javascripts/jquery.fancybox.pack.js"></script>
+<script src="/Matt-Aimonetti/javascripts/slash.js"></script>
+
+
+
+
+</body>
+</html>

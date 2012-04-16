@@ -1,0 +1,399 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Matt Aimonetti</title>
+    <meta name="author" content="Matt Aimonetti">
+
+    
+    <meta name="description" content="Preparing Merb 1.0 RC2 1.0RC1 was released less than a week ago and we are already planning to release RC2 next week or so. Thanks to all the &hellip;">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+
+    <link href="/Matt-Aimonetti/atom.xml" rel="alternate" title="Matt Aimonetti" type="application/atom+xml">
+    <link rel="canonical" href="http://mattetti.github.com/Matt-Aimonetti">
+    <link href="/Matt-Aimonetti/favicon.png" rel="shortcut icon">
+    <link href="/Matt-Aimonetti/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30927742-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+
+<body>
+	<header><div id='meta' class='inner'>
+  <div id="matt-aimonetti" itemscope itemtype="http://data-vocabulary.org/Person">
+    <img class="photo left" src="/Matt-Aimonetti/images/matt_aimonetti.jpg" />
+    <h1 class="left"><a itemprop="name" href="/Matt-Aimonetti/">Matt Aimonetti</a></h1>
+    <br>
+    <ul class='left'>
+      <li><a href='http://www.linkedin.com/in/mattaimonetti'>Software Architecture</a> at <span itemprop="affiliation">LivingSocial</span></li>
+      <li><a href='http://www.oreillynet.com/pub/au/4385'>Author</a> at <span itemprop="affiliation">O'Reilly</span></li>
+      <li>Open-source <a href="/articles/archives">evangelist</a></li>
+      <li><a href="https://github.com/mattetti">Web engineer</a></li>
+    </ul>
+  <nav class="menu left"><ul class="main">
+	<li><a href="/Matt-Aimonetti/">Articles</a></li>
+	<li><a href="/Matt-Aimonetti/posts/archives">Archives</a></li>
+</ul>
+</nav>
+  <div class="right">
+    <form class="search right" action="http://google.com/search" method="get">
+      <input class="left" type="text" name="q" results="0">
+      <input type="hidden" name="q" value="site:mattetti.github.com/Matt-Aimonetti">
+    </form>
+    <div class="social right">
+      
+      
+      <a class="google" rel='me' href="https://plus.google.com/101114877505962271216?rel=author" title="Google+">Google+</a>
+      
+      
+      <a class="twitter" rel='me' href="http://twitter.com/merbist" title="Twitter">Twitter</a>
+      
+      
+      <a class="github" rel='me' href="https://github.com/mattetti" title="GitHub">GitHub</a>
+      
+      
+      
+      <a class="linkedin" rel='me' href="http://www.linkedin.com/in/mattaimonetti" title="Linkedin">Linkedin</a>
+      
+      
+      <a class="rss" rel='me' href="/Matt-Aimonetti/atom.xml" title="RSS">RSS</a>
+      
+    </div>
+  </div>
+</div>
+
+</header>
+	
+<!--
+<div id="banner" class="inner">
+	<div class="container">
+		<ul class="feed"></ul>
+	</div>
+	<small><a href="http://twitter.com/merbist">merbist</a> @ <a href="http://twitter.com">Twitter</a></small>
+	<div class="loading">Loading...</div>
+</div>
+<script src="/Matt-Aimonetti/javascripts/twitter.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('#banner').getTwitterFeed('merbist', 0, false);
+	})(jQuery);
+</script>
+-->
+
+
+	<div id="content" class="inner">
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/16/preparing-merb-10-rc2/">Preparing Merb 1.0 RC2</a></h1>
+    <div class="entry">
+        <p><a href="http://merbist.com/2008/10/13/merb-10-rc1/">1.0RC1 was released</a> less than a week ago and we are already planning to release RC2 next week or so.</p>
+
+<p>Thanks to all the contributors who reported RC1 bugs and submitted patches. RC2 should iron out most of the small bugs and annoyances encountered.</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;180&#8221; caption=&#8221;Rosemary has a very old reputation for improving memory.&#8221;]<a href="http://flickr.com/photos/geishaboy500/133095382/"><img src="http://farm1.static.flickr.com/56/133095382_75068e1a32_m.jpg" alt="Rosemary has a very old reputation for improving memory." /></a>[/caption]</p>
+
+<p>However, RC2 top priority is to get Merb and DataMapper properly working on Windows. Some members of the .net community offered their help to compile windows native DM drivers. Supporting Windows is not an easy task but we think it is a critical thing to do.</p>
+
+<p>We are also discussing setting up a nightly gem server so people could test Merb edge without having to use git etc..Â  It&#8217;s also a great way for us to test gem dependencies before an official release. The only problem with nightly gems is that you need to have a way to track what version is being installed or what version a user reporting a bug is using. We do have some ideas, but please feel free to add a comment with your suggestions.</p>
+
+<p>On a different note, the <a href="http://wiki.merbivore.com/">new wiki</a> is growing nicely, but we do need more content, as you are experimenting with Merb 1.0RC, please think about sharing your knowledge with others by using the <a href="http://wiki.merbivore.com/">wiki</a>.</p>
+
+<p>Finally, people on Edge are reporting issue with gems not loading properly. The problem is that you have generated an app with hardcoded dependencies (check your config/dependencies.rb file). Your app won&#8217;t load newer gems and therefore migth crash. Make sure to define the proper dependencies. We are working onÂ  documenting this behavior and making the error message clearer.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-16T11:15:27+02:00" pubdate data-updated="true">Oct 16<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/13/merb-10-rc1/">Merb 1.0 RC1</a></h1>
+    <div class="entry">
+        <p><a href="http://www.flickr.com/photos/81335564@N00/2934025410">
+</a><a href="http://www.flickr.com/photos/81335564@N00/2050355003"><img src="http://static.flickr.com/2359/2050355003_8b5db33ff0_t.jpg" alt="floor 1" /></a> <a href="http://www.flickr.com/photos/49968232@N00/85990435"><img src="http://static.flickr.com/6/85990435_4549262c9b_t.jpg" alt="full stop" /></a><a href="http://www.flickr.com/photos/49968232@N00/2114628079"><img src="http://static.flickr.com/2113/2114628079_b00a6ed156_t.jpg" alt="zero" /> </a></p>
+
+<p><a href="http://www.flickr.com/photos/92745470@N00/2777560349"><img src="http://static.flickr.com/3122/2777560349_49ea878a74_t.jpg" alt="R" /></a> <a href="http://www.flickr.com/photos/92709190@N00/2351343799"><img src="http://static.flickr.com/3151/2351343799_8c399edc55_t.jpg" alt="C is for church" /></a> <a href="http://www.flickr.com/photos/49968232@N00/2115385302"><img src="http://static.flickr.com/2267/2115385302_b021bebee7_t.jpg" alt="1" /></a></p>
+
+<p>Few hours ago we finally pushed Merb 1.0 RC1 to <a href="http://rubyforge.org/projects/merb">rubyforge</a>.</p>
+
+<p>RC stands for <a href="http://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate">Release Candidate</a>. And we will need your help to make a rock solid 1.0 final.</p>
+
+<p>For the occasion, we switched to our <a href="http://wiki.merbivore.com/">new wiki</a>.</p>
+
+<p>Installing Merb stack is now dead easy:
+<code>$ sudo gem install merb</code></p>
+
+<p><a href="http://wiki.merbivore.com/howto/gettingstarted/firstapp">Here is a tutorial</a> to get you started with Merb in few minutes.</p>
+
+<p>Unfortunately we already found few bugs related to the generated resources.</p>
+
+<p>Known bugs are documented <a href="http://wiki.merbivore.com/merb_1.0_rc1_known_bugs">here</a> with fixes. We&#8217;ll keep track of the RC1 known bugs until we release RC2. Fortunately, so far we didn&#8217;t find any major bugs but hey&#8230; try to prove us wrong as hard as you can. As mentioned earlier we want a rock solid 1.0.</p>
+
+<p>As you have probably we are trying to be as transparent as possible and we know that we aren&#8217;t perfect and we make mistakes. Our goal is honestly not to build an ego but to provide you with awesome tools.</p>
+
+<p>Talking about awesome talks, as we are waiting for the videos from <a href="http://merbcamp.com">MerbCamp</a>, I&#8217;d encourage you to check on Yehuda Kats&#8217; keynote&#8217;s slides and get an idea of Merb&#8217;s future.</p>
+
+<p><a href="http://www.slideshare.net/wycats/merb-camp-keynote-presentation?type=powerpoint">Merb Camp Keynote</a></p>
+
+<p>Other MerbCamp talks: <a href="http://slideshare.net/tag/merbcamp">merbcamp slides</a>)</p>
+
+<p>What I learned from this keynote that you should always double check what people tell you. All the Ruby frameworks tested including Rails are way faster than PHP frameworks such as <a href="http://cakephp.org/">CakePHP</a>, <a href="http://www.symfony-project.org/">Symfony</a>, <a href="http://codeigniter.com/">Code Igniter</a>.</p>
+
+<p>Fibonacci type benchmarks seem to only test a certain aspect of a language, turns out that if you are interested in a fast and flexible web framwork, ruby and especially Merb are seriously the way to go.</p>
+
+<p>UPDATE: looks like someone posted a <a href="http://blip.tv/file/1354733">bootleg version of the keynote </a>;)</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-13T23:01:47+02:00" pubdate data-updated="true">Oct 13<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/13/merb-10-rc1-delayed-by-few-hours-hopefully/">Merb 1.0 RC1 Delayed (by Few Hours Hopefully)</a></h1>
+    <div class="entry">
+        <p><a href="http://flickr.com/photos/aihibed/1410398234/"><img src="http://farm2.static.flickr.com/1235/1410398234_c341320704.jpg?v=0" alt="" /></a> Tonight, the core team members present during MerbCamp got together at my place to prepare and release 1.0 RC1.</p>
+
+<p>The problem is that we spent more time joking, laughing and arguing about the new git system that we didn&#8217;t feel right about pushing a release at 4am :(</p>
+
+<p>The git -core and -more repos got merged into a centralized <a href="http://github.com/wycats/merb">repo</a>. You will notice an active branch and that&#8217;s where most of the hacking is going on.</p>
+
+<p>Each core team member has a fork of the project and we all create a new branch everytime we work on a new feature or bug fix. Branch comments get squashed into 1 comment, merged back into the local rebased active branch. The commit get then pulled by Yehuda or pushed to his active branch. Yehuda then make sure all the commits are clean and merge them back in master (edge).</p>
+
+<p>Releases will have their own branches and tags.</p>
+
+<p>People wanting to hack on a specific feature should really fork a core member branch. Usually a core member involved with what you want to work on. Of course that&#8217;s optional but whatever you do, if you want to hack on Merb, please use the active branch and not master.</p>
+
+<p>It&#8217;s 4:15am, and we are still cleaning up the last few quirks before the release, I know we planned on a releasing today but I guess it&#8217;s better to wait few more hours and to get a solid release.</p>
+
+<p>Sorry about that :(</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-13T03:18:46+02:00" pubdate data-updated="true">Oct 13<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/11/end-of-merbcamp-day-1/">End of MerbCamp Day 1</a></h1>
+    <div class="entry">
+        <p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;240&#8221; caption=&#8221;MerbCamp registration by Andy Delcambre&#8221;]<a href="http://flickr.com/photos/adelcambre/2932032491/"><img src="http://farm4.static.flickr.com/3147/2932032491_ccdd7fba0e_m.jpg" alt="MerbCamp registration by Andy Delcambre" /></a>[/caption]</p>
+
+<p>Day 1 went very fast.</p>
+
+<p>The day started with a <a href="http://www.slideshare.net/ezmobius/merb-nanite-presentation?src=embed">Keynote</a> from <a href="http://brainspl.at/"><img src="http://merbcamp.com/images/speakers/24/ezra.jpg" alt="Ezra Zygmuntowicz" /></a> <a href="http://brainspl.at/">Ezra Zygmuntowicz</a>, author of <a href="http://merbivore.com">Merb</a>. Ezra covered the past and present of Merb and introduced <a href="http://github.com/ezmobius/nanite/tree/master/README">Nanite: self assembling cluster of ruby processes.</a></p>
+
+<p><a href="http://splendificent.com/"><img src="http://merbcamp.com/images/speakers/24/carl.jpg" alt="Carl Lerche" /></a> (<a href="http://splendificent.com/">Carl Lerche) </a>introduced the awesomeness brought to you by the <a href="http://www.slideshare.net/carllerche/merb-pluming-the-router-presentation">new router.</a></p>
+
+<p><a href="http://hassox.blogspot.com/"><img src="http://merbcamp.com/images/speakers/24/daniel.jpg" alt="Daniel Neighman" /></a> <a href="http://hassox.blogspot.com/">Daniel Neighman</a> introduced Merb&#8217;s <a href="http://www.slideshare.net/hassox/merb-slices-presentation">slice system</a> and <a href="http://www.slideshare.net/hassox/merb-auth-presentation">Merb Authentication</a> plugin.</p>
+
+<p><a href="http://yehudakatz.com/"><img src="http://merbcamp.com/images/speakers/24/yehuda.jpg" alt="Yehuda Katz" /></a> <a href="http://yehudakatz.com/">Yehuda Kats</a> had 2 talks today, one of how to test your app the Merb Way. Here is a quote which sumups the talk pretty well:Â &#8221;If you have to refactor your tests to refactor your code then your tests do not prove your code actually works.&#8221;Â  Yehuda also had a 2nd talk later on in the day where he talked about Javascript and why RJS sucks and should be replaced by proper JS (in prototype or jQuery or whatever).</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;160&#8221; caption=&#8221;Matt asking a question by Andy Delcambre&#8221;]<a href="http://flickr.com/photos/adelcambre/2932035013/"><img src="http://farm4.static.flickr.com/3167/2932035013_715b5814ae_m.jpg" alt="Matt asking a question by Andy Delcambre" /></a>[/caption]</p>
+
+<p>There were some other awesome talks like the couchDb talk, the Sequel talk, getting up and running with Merb and obviously awesome DM.</p>
+
+<p><a href="http://www.slideshare.net/mattetti/datamapper-in-20-min-presentation?type=powerpoint">DataMapper In 20 min</a></p>
+
+<p>I have to say that it&#8217;s probably one of the best conference I have being part of. I&#8217;m certainly biased but I really enjoyed myself. Having a small group of motivated people makes a big difference. We had a great lunch all together, watch a 3xHD video stream during a break and headed to the beach for a sunset BBQ :)</p>
+
+<p>Can&#8217;t wait for tomorrow but I need to prep my slides and work test Merb before we release 1.0RC tomorrow.  By the way, we setup a new wiki during Merb Sprint and we will need your help to provide &#8220;osim&#8221; content before 1.0 final.</p>
+
+<p>p.s: someone<a href="http://rubypond.com/articles/2008/10/11/merbcamp---notes-from-the-edge/"> live blogged</a> most of the talks.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-11T22:50:20+02:00" pubdate data-updated="true">Oct 11<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/10/11/merbcamp-just-started/">MerbCamp Just Started</a></h1>
+    <div class="entry">
+        <p>A real quick post to let people know that <a href="http://merbcamp.com">MerbCamp</a> just started. If you couldn&#8217;t make it to San Diego, you can follow <a href="http://merbcamp.com/webcast">live</a>. (For FREE)</p>
+
+<p>[caption id=&#8221;&#8221; align=&#8221;alignright&#8221; width=&#8221;160&#8221; caption=&#8221;Ezra during his Keynote&#8221;]<a href="http://flickr.com/search/?q=merbcamp&amp;ss=2&amp;ct=6"><img src="http://farm4.static.flickr.com/3277/2932034431_48a54ab62d_m.jpg" alt="Ezra during his Keynote" /></a>[/caption]</p>
+
+<p>Merb 1.0 RC should be released tomorrow with a new option to get started with a Merb stack including Merb Core, Merb More, DataMapper Core with sqlite3 adapter and few plugins from DM more.</p>
+
+<p>You will still be able to only use the modules you want, add/remove components, build a Sinatra like app etc.. The only difference is that if you wish to do so, we offer a packaged version of Merb that we guarantee working together. The exciting thing about the stack is that we included stuff most people will need such as builtin very flexible authentication, notification exceptions etc&#8230;</p>
+
+<p>Watch the conf to learn more about the goodies in Merb 1.0</p>
+
+<p>Go Merb!</p>
+
+<p>UPDATE: <a href="http://fiveruns.com">FiveRuns</a> MerbCamp sponsor, just <a href="http://blog.fiveruns.com/2008/10/11/fiveruns-tuneup-for-merb">released TuneUp</a> for Merb! Awesome!</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-11T09:45:53+02:00" pubdate data-updated="true">Oct 11<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+<nav id="pagenavi">
+    
+        <a href="/Matt-Aimonetti/page/page/17/" class="prev">Prev</a>
+    
+    
+        <a href="/Matt-Aimonetti/page/page/19/" class="next">Next</a>
+    
+    <a href="/Matt-Aimonetti/articles/archives" class="center">Archives</a>
+</nav>
+</div>
+	<footer class="inner"><div id='copyright-notice'>Copyright &copy; 2012 Matt Aimonetti</div>
+</footer>
+	<script src="/Matt-Aimonetti/javascripts/jquery.fancybox.pack.js"></script>
+<script src="/Matt-Aimonetti/javascripts/slash.js"></script>
+
+
+
+
+</body>
+</html>

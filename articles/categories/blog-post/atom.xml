@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: blog-post | Matt Aimonetti]]></title>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/blog-post/atom.xml" rel="self"/>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
+  <updated>2012-04-17T01:22:39+02:00</updated>
+  <id>http://mattetti.github.com/Matt-Aimonetti/</id>
+  <author>
+    <name><![CDATA[Matt Aimonetti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Building and implementing a Single Sign-On solution]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/04/04/building-and-implementing-a-single-sign-on-solution/"/>
+    <updated>2012-04-04T07:29:16+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/04/04/building-and-implementing-a-single-sign-on-solution</id>
+    <content type="html"><![CDATA[<p>Most modern web applications start as a monolithic code base and, as complexity increases, the once small app gets split apart into many "modules". In other cases, engineers opt for a <a href="http://en.wikipedia.org/wiki/Service-oriented_architecture">SOA</a> design approach from the beginning. One way or another, we start running multiple separate applications that need to interact seamlessly. My goal will be to describe some of the high-level challenges and solutions found in implementing a Single-Sign-On service.</p>
+
+<h2>Authentication vs Authorization</h2>
+
+<p>I wish these two words didn't share the same root because it surely confuses a lot of people. My most frequently-discussed example is <a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a>. Every time I start talking about implementing a centralized/unified authentication system, someone jumps in and suggests that we use <a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a>. The challenge is that <a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a> is an authorization system, not an authentication system.</p>
+
+<p>It's tricky, because you might actually be "authenticating" yourself to website X using OAuth. What you are really doing is allowing website X to use your information stored by the OAuth provider. It is true that OAuth offers a pseudo-authentication approach via its provider but that is not the main goal of <a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a>: the Auth in OAuth stands for Authorization, not Authentication.</p>
+
+<p>Here is how we could briefly describe each role:</p>
+
+<ul>
+<li><p><strong>Authentication</strong>: recognizes who you are.</p></li>
+<li><p><strong>Authorization</strong>: know what you are allowed to do, or what you allow others to do.</p></li>
+</ul>
+
+
+<p>If you are feel stuck in your design and something seems wrong, ask yourself if you might be confused by the 2 auth words. This article will only focus on <strong>authentication</strong>.</p>
+
+<h2>A Common Scenario</h2>
+
+<p><a href="http://merbist.com/wp-content/uploads/2012/04/SSO-simplescenario.png"><img src="http://merbist.com/wp-content/uploads/2012/04/SSO-simplescenario.png" alt="SSO diagram with 3 top applications connecting to an authorization service." /></a></p>
+
+<p>This is probably the most common structure, though I made it slightly more complex by drawing the three main apps in different programming languages. We have three web applications running on different subdomains and sharing account data via a centralized authentication service.</p>
+
+<p><strong>Goals:</strong></p>
+
+<ul>
+<li><p>Keep authentication and basic account data isolated.</p></li>
+<li><p>Allow users to stay logged in while browsing different apps.</p></li>
+</ul>
+
+
+<p>Implementing such a system should be easy. That said, if you migrate an existing app to an architecture like that, you will spend 80% of your time decoupling your legacy code from authentication and wondering what data should be centralized and what should be distributed. Unfortunately, I can't tell you what to do there since this is very domain specific. Instead, let's see how to do the "easy part."</p>
+
+<h2>Centralizing and Isolating Shared Account Data</h2>
+
+<p>At this point, you more than likely have each of your apps talk directly to shared database tables that contain user account data. The first step is to migrate away from doing that. We need a single interface that is the only entry point to create or update shared account data. Some of the data we have in the database might be app specific and therefore should stay within each app, anything that is shared across apps should be moved behind the new interface.</p>
+
+<p>Often your centralized authentication system will store the following information:</p>
+
+<ul>
+<li><p>ID</p></li>
+<li><p>first name</p></li>
+<li><p>last name</p></li>
+<li><p>login/nickname</p></li>
+<li><p>email</p></li>
+<li><p>hashed password</p></li>
+<li><p>salt</p></li>
+<li><p>creation timestamp</p></li>
+<li><p>update timestamp</p></li>
+<li><p>account state (verified, disabled ...)</p></li>
+</ul>
+
+
+<p>Do not duplicate this data in each app, instead have each app rely on the account ID to query data that is specific to a given account in the app. Technically that means that instead of using SQL joins, you will query your database using the ID as part of the condition.</p>
+
+<p>My suggestion is to do things slowly but surely. Migrate your database schema piece by piece assuring that everything works fine. Once the other pieces will be in place, you can migrate one code API a time until your entire code base is moved over. You might want to change your DB credentials to only have read access, then no access at all.</p>
+
+<h2>Login workflow</h2>
+
+<p>Each of our apps already has a way for users to login. We don't want to change the user experience, instead we want to make a transparent modification so the authentication check is done in a centralized way instead of a local way. To do that, the easiest way is to keep your current login forms but instead of POSTing them to your local apps, we'll POST them to a centralized authentication API. (SSL is strongly recommended)</p>
+
+<p><a href="http://merbist.com/wp-content/uploads/2012/04/SSO-login.png"><img src="http://merbist.com/wp-content/uploads/2012/04/SSO-login.png" alt="diagram showing the login workflow" /></a></p>
+
+<p>As shown above, the login form now submits to an endpoint in the authentication application. The form will more than likely include a login or email and a clear text password as well as a hidden callback/redirect url so that the authentication API can redirect the user's browser to the original app. For security reasons, you might want to white list the domains you allow your authentication app to redirect to.</p>
+
+<p>Internally, the Authentication app will validate the identifier (email or login) using a hashed version of the clear password against the matching record in the account data. If the verification is successful, a token will be generated containing some user data (for instance: id, first name, last name, email, created date, authentication timestamp). If the verification failed, the token isn't generated. Finally the user's browser is redirected to the callback/redirect URL provided in the request with the token being passed.</p>
+
+<p>You might want to safely encrypt the data in a way that allows the clients to verify and trust that the token comes from a trusted source. A great solution for that would be to use <a href="http://en.wikipedia.org/wiki/RSA_(algorithm">RSA encryption</a>) with the public key available in all your client apps but the private key only available on the auth server(s). Other strong encryption solutions would also work. For instance, another appropriate approach would be to add a signature to the params sent back. This way the clients could check the authenticity of the params. <a href="http://en.wikipedia.org/wiki/HMAC">HMAC</a> or <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a> signature are great for that but in some cases, you don't want people to see the content of the data you send back. That's especially true if you are sending back a 'mobile' token for instance. But that's a different story. What's important to consider is that we need a way to ensure that the data sent back to the client can't be tampered with. You might also make sure you prevent replay attacks.</p>
+
+<p>On the other side, the application receives a GET request with a token param. If the token is empty or can't be decrypted, authentication failed. At that point, we need to show the user the login page again and let him/her try again. If on the other hand, the token can be decrypted, the content should be saved in the session so future requests can reuse the data.</p>
+
+<p>We described the authentication workflow, but if a user logins in application X, (s)he won't be logged-in in application Y or Z. The trick here, is to set a top level domain cookie that can be seen by all applications running on subdomains. Certainly, this solution only works for apps being on the same domain, but we'll see later how to handle apps on different domains.</p>
+
+<p><a href="http://merbist.com/wp-content/uploads/2012/04/SSO-login-cookie.png"><img src="http://merbist.com/wp-content/uploads/2012/04/SSO-login-cookie.png" alt="" /></a></p>
+
+<p>The cookie doesn't need to contain a lot of data, its value can contain the account id, a timestamp (to know when authentication happened and a trusted signature) and a signature. The signature is critical here since this cookie will allow users to be automatically logged in other sites. I'd recommend the  <a href="http://en.wikipedia.org/wiki/HMAC">HMAC</a> or <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a> encryptions to generate the signature. The DSA encryption, very much like the RSA encryption is an asymmetrical encryption relying on a public/private key. This approach offers more security than having something based a shared secret like HMAC does. But that's really up to you.</p>
+
+<p>Finally, we need to set a filter in your application. This auto-login filter will check the presence of an auth cookie on the top level domain and the absence of local session. If that's the case, a session is automatically created using the user id from the cookie value after the cookie integrity is verified. We could also share the session between all our apps, but in most cases, the data stored by each app is very specific and it's safer/cleaner to keep the sessions isolated. The integration with an app running on a different service will also be easier if the sessions are isolated.</p>
+
+<h2>Registration</h2>
+
+<p>For registration, as for login, we can take one of two approaches: point the user's browser to the auth API or make S2S (server to server) calls from within our apps to the Authentication app. POSTing a form directly to the API is a great way to reduce duplicated logic and traffic on each client app so I'll demonstrate this approach.</p>
+
+<p><a href="http://merbist.com/wp-content/uploads/2012/04/CopyofSSO-register.png"><img src="http://merbist.com/wp-content/uploads/2012/04/CopyofSSO-register.png" alt="" /></a></p>
+
+<p>As you can see, the approach is the same we used to login. The difference is that instead of returning a token, we just return some params (id, email and potential errors). The redirect/callback url will also obviously be different than for login. You could decide to encrypt the data you send back, but in this scenario, what I would do is set an auth cookie at the .domain.com level when the account is created so the "client" application can auto-login the user. The information sent back in the redirect is used to re-display the register form with the error information and the email entered by the user.</p>
+
+<p>At this point, our implementation is almost complete. We can create an account and login using the defined credentials. Users can switch from one app to another without having to re login because we are using a shared signed cookie that can only be created by the authentication app and can be verified by all "client" apps. Our code is simple, safe and efficient.</p>
+
+<h2>Updating or deleting an account</h2>
+
+<p>The next thing we will need is to update or delete an account. In this case, this is something that needs to be done between a "client" app and the authentication/accounts app. We'll make S2S (server to server) calls. To ensure the security of our apps and to offer a nice way to log requests, API tokens/keys will be used by each client to communicate with the authentication/accounts app. The API key can be passed using a <a href="http://en.wikipedia.org/wiki/List_of_HTTP_header_fields">X-header</a> so this concern stays out of the request params and our code can process separately the authentication via X-header and the actual service implementation. S2S services should have a filter verifying and logging the API requests based on the key sent with the request. The rest is straight forward.</p>
+
+<h2>Using different domains</h2>
+
+<p>Until now, we assumed all our apps were on the same top domain. In reality, you will often find yourself with apps on different domains. This means that you can't use the shared signed cookie approach anymore. However, there is a simple trick that will allow you to avoid requiring your users to re-login as they switch apps.</p>
+
+<p><a href="http://merbist.com/wp-content/uploads/2012/04/SSO-differentdomains-1.png"><img src="http://merbist.com/wp-content/uploads/2012/04/SSO-differentdomains-1.png" alt="" /></a></p>
+
+<p>The trick consists, when a local session isn't present, of using an iframe in the application using the different domain. The iframe loads a page from the authentication/accounts app which verifies that a valid cookie was set on the main top domain. If that is the case, we can tell the application that the user is already globally logged in and we can tell the iframe host to redirect to an application end point passing an auth token the same way we did during the authentication. The app would then create a session and redirect the user back to where (s)he started. The next requests will see the local session and this process will be ignored.</p>
+
+<p>If the authentication application doesn't find a signed cookie, the iframe can display a login form or redirect the iframe host to a login form depending on the required behavior.</p>
+
+<p>Something to keep in mind when using multiple apps and domains is that you need to keep the shared cookies/sessions in sync, meaning that if you log out from an app, you need to also delete the auth cookie to ensure that users are globally logged out. (It also means that you might always want to use an iframe to check the login status and auto-logoff users).</p>
+
+<h2>Mobile clients</h2>
+
+<p>Another part of implementing a SSO solution is to handle mobile clients. Mobile clients need to be able to register/login and update accounts. However, unlike S2S service clients, mobile clients should only allow calls to modify data on the behalf of a given user. To do that, I recommend providing opaque mobile tokens during the login process. This token can then be sent with each request in a X-header so the service can authenticate the user making the request. Again, SSL is strongly recommended.</p>
+
+<p>In this approach, we don't use a cookie and we actually don't need a SSO solution, but an unified authentication system.</p>
+
+<h2>Writing web services</h2>
+
+<p>Our Authentication/Accounts application turns out to be a pure web API app.</p>
+
+<p>We also have 3 sets of APIs:</p>
+
+<ul>
+<li><p>Public APIs: can be accessed from anywhere, no authentication required</p></li>
+<li><p>S2S APIs: authenticated via API keys and only available to trusted clients</p></li>
+<li><p>Mobile APIs: authenticated via a mobile token and limited in scope.</p></li>
+</ul>
+
+
+<p>We don't need dynamic HTML views, just simple web service related code. While this is a little bit off topic, I'd like to take a minute to show you how I personally like writing web service applications.</p>
+
+<p>Something that I care a lot about when I implement web APIs is to validate incoming params. This is an opinionated approach that I picked up while at Sony and that I think should be used every time you implement a web API. As a matter of fact, I wrote a Ruby <a href="https://github.com/mattetti/Weasel-Diesel">DSL library (Weasel Diesel)</a> allowing you <a href="https://github.com/mattetti/sinatra-web-api-example/blob/master/api/hello_world.rb">describe a given service</a>, its <a href="https://github.com/mattetti/sinatra-web-api-example/blob/master/api/hello_world.rb#L7">incoming params</a>, and the <a href="https://github.com/mattetti/sinatra-web-api-example/blob/master/api/hello_world.rb#L10-15">expected output</a>. This DSL is hooked into a web backend so you can implement services using a web engine such as <a href="http://www.sinatrarb.com/">Sinatra</a> or maybe Rails3. Based on the DSL usage, incoming parameters are be verified before being processed. The other advantage is that you can generate documentation based on the API description as well as automated tests.</p>
+
+<p>You might be familiar with <a href="https://github.com/intridea/grape">Grape</a>, another DSL for web services. Besides the obvious style difference <a href="https://github.com/mattetti/Weasel-Diesel">Weasel Diesel </a>offers the following advantages:</p>
+
+<ul>
+<li><p>input validation/sanitization</p></li>
+<li><p>service isolation</p></li>
+<li><p>generated documentation</p></li>
+<li><p>contract based design</p></li>
+</ul>
+
+
+<p>Here is a hello world webservice being implemented using Weasel Diesel and Sinatra:</p>
+
+<p>[gist]https://gist.github.com/2300131[/gist]</p>
+
+<p>Basis test validating the contract defined in the DSL and the actual output when the service is called:</p>
+
+<p>[gist]https://gist.github.com/2300440[/gist]</p>
+
+<p>Generated documentation:</p>
+
+<p><img src="https://img.skitch.com/20120404-t1j93b73tef5pmd5idfqqa61td.jpg" alt="" /></p>
+
+<p>If the DSL and its features seem appealing to you and you are interested in digging more into it, the easiest way is to fork <a href="https://github.com/mattetti/sinatra-web-api-example/">this demo repo</a> and start writing your own services.</p>
+
+<p>The DSL has been used in production for more than a year, but there certainly are tweaks and small changes that can make the user experience even better. Feel free to fork the <a href="https://github.com/mattetti/Weasel-Diesel">DSL repo</a> and send me Pull Requests.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Learning from Rails' failures]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/29/learning-from-rails-failures/"/>
+    <updated>2012-02-29T07:48:08+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/29/learning-from-rails-failures</id>
+    <content type="html"><![CDATA[<p>Ruby on Rails undisputedly changed the way web frameworks are designed. Rails became a reference when it comes to leveraging conventions, easy baked in feature set and a rich ecosystem. However, I think that Rails did and still does a lot of things pretty poorly.  By writing this post, I'm not trying to denigrate Rails, there are many other people out there already doing that. My hope is that by listing what I think didn't and still doesn't go well, we can learn from our mistakes and improve existing solutions or create better new ones.</p>
+
+<p><a href="http://merbist.com/2012/02/29/learning-from-rails-failures/train_fail/"><img src="http://merbist.com/wp-content/uploads/2012/02/train_fail-300x188.jpg" alt="" /></a></p>
+
+<h2>Migration/upgrades</h2>
+
+<p>Migrating a Rails App from a version to the other is very much like playing the lottery, you are almost sure you will lose. To be more correct, you know things will break, you just don't know what, when and how. The Rails team seems to think that everybody is always running on the cutting edge version and don't consider people who prefer to stay a few version behind for stability reasons. What's worse is that plugins/gems might or might not compatible with the version you are updating to, but you will only know that by trying yourself and letting others try and report potential issues.</p>
+
+<p>This is for me, by far, the biggest issue with Rails and something that should have been fixed a long time ago. If you're using the WordPress blog engine, you know how easy and safe it is to upgrade the engine or the plugins. Granted WordPress isn't a web dev framework, but it gives you an idea of what kind of experience we should be striving for.</p>
+
+<h2>Stability vs playground zone</h2>
+
+<p>New features are cool and they help make the platform more appealing to new comers. They also help shape the future of a framework. But from my perspective, that shouldn't come to the cost of stability. Rails 3's new asset pipeline is a good example of a half-baked solution shoved in a release at the last minute and creating a nightmare for a lot of us trying to upgrade. I know, I know, you can turn off the asset pipeline and it got better since it was first released. But shouldn't that be the other way around? Shouldn't fun new ideas risking the stability of an app or making migration harder, be off by default and turned on only by people wanting to experiment? When your framework is young, it's normal that you move fast and sometimes break, but once it matures, these things shouldn't happen.</p>
+
+<h2>Public/private/plugin APIs</h2>
+
+<p>This is more of a recommendation than anything else. When you write a framework in a very dynamic language like Ruby, people will "monkey patch" your code to inject features. Sometimes it is due to software design challenges, sometimes it's because people don't know better. However,  by not explicitly specifying what APIs are private (they can change at anytime, don't touch), what APIs are public (stable, will be slowly deprecated when they need to be changed) and which ones are for plugin devs only (APIs meant for instrumentation, extension etc..), you are making migration to newer versions much harder. You see, if you have a small, clean public API, then it's easy to see what could break, warn developers and avoid migration nightmares. However, you need to start doing that early on in your project, otherwise you will end up like Rails where all code can potentially change anytime.</p>
+
+<h2>Rails/Merb merge was a mistake</h2>
+
+<p>This is my personal opinion and well, feel free to disagree, nobody will ever be able to know to for sure. Without explaining what happened behind closed doors and the various personal motivations, looking at the end result, I agree with the group of people thinking that the merge didn't turn up to be a good thing. For me, Rails 3 isn't significantly better than Rails 2 and it took forever to be released. You still can't really run a mini Rails stack like promised. I did hear that Strobe (company who was hiring Carl Lerche, Yehuda Katz and contracted Jose Valim) used to have an ActionPack based, mini stack but it was never released and apparently only Rails core members really knew what was going on there. Performance in vanilla Rails 3 are only now getting close to what you had with Rails 2 (and therefore far from the perf you were getting with Merb). Thread-safety is still OFF by default meaning that by default your app uses a giant lock only allowing a process to handle 1 request at a time. For me, the flexibility and performance focus of Merb were mainly lost in the merge with Rails. (Granted, some important things such as ActiveModel, cleaner internals and others have made their way into Rails 3)</p>
+
+<p>But what's worse than everything listed so far is that the lack of competition and the internal rewrites made Rails lose its headstart.  Rails is very much HTML/view focused, its primarily strength is to make server side views trivial and it does an amazing job at that. But let's be honest, that's not the future for web dev. The future is more and more logic pushed to run on the client side (in JS) and the server side being used as an API serving data for the view layer. I'm sorry but adding support for CoffeeScript doesn't really do much to making Rails evolve ahead of what it currently is. Don't get me wrong, I'm a big fan of CoffeeScript, that said I still find that Rails is far from being optimized to developer web APIs in Rails. You can certainly do it, but you are basically using a tool that wasn't designed to write APIs and you pay the overhead for that. If there is one thing I wish Rails will get better at is to make writing pure web APIs better (thankfully there is Sinatra). But at the end of the day, I think that two projects with different philosophies and different approaches are really hard to merge, especially in the open source world. I wouldn't go as far as saying like others that Rails lost its sexiness to node.js because of the wasted time, but I do think that things would have been better for all if that didn't happen. However, I also have to admit that I'm not sure how much of a big deal that is. I prefer to leave the past behind, learn from my own mistake and move on.</p>
+
+<h2>Technical debts</h2>
+
+<p>Here I'd like to stop to give a huge props to Aaron "<a href="http://twitter.com/tenderlove">@tenderlove</a>" Patterson, the man who's actively working to reduce the <a href="http://en.wikipedia.org/wiki/Technical_debt">technical debts</a> in the Rails code base. This is a really hard job and definitely not a very glamorous one. He's been working on various parts of Rails including its router and its ORM (ActiveRecord). Technical debts are unfortunately normal in most project, but sometimes they are overwhelming to the point that nobody dares touching the code base to clean it up. This is a hard problem, especially when projects move fast like Rails did. But looking back, I think that you want to start tackling technical debts on the side as you move on so you avoid getting to the point that you need a hero to come up and clean the piled errors made in the past. But don't pause your entire project to clean things up otherwise you will lose market, momentum and excitement. I feel that this is also very much true for any legacy project you might pick up as a developer.</p>
+
+<h2>Keep the cost of entry level low</h2>
+
+<p>Getting started with Rails used to be easier. This can obviously argued since it's very subjective, but from my perspective I think we forgot where we come from and we involuntary expect new comers to come with unrealistic knowledge. Sure, Rails does much more than it used to do, but it's also much harder to get started. I'm not going to argue how harder  it is now or why we got there. Let's just keep in mind that it is a critical thing that should always be re-evaluated. Sure, it's harder when you have an open source project, but it's also up to the leadership to show that they care and to encourage and mentor volunteers to  focus on this important part of a project.</p>
+
+<h2>Documentation</h2>
+
+<p>Rails documentation isn't bad, but it's far from being great. Documentation certainly isn't one of the Ruby's community strength, especially compared with the Python community, but what saddens me is to see the state of <a href="http://guides.rubyonrails.org/">the official documentation</a> which, should, in theory be the reference. Note that the Rails guides are usually well written and provide value, but they too often seem too light and not useful when you try to do something not totally basic (for instance use an ActiveModel compliant object). That's probably why most people don't refer to them or don't spend too much time there. I'm not trying to blame anyone there. I think that the people who contributed theses guides did an amazing job, but if you want to build a strong and easy to access community, great documentation is key. Look at the <a href="https://docs.djangoproject.com/en/1.3/">Django</a> documentation as a good example. That said, I also need to acknowledge the amazing job done by many community members such as <a href="http://railscasts.com/">Ryan Bates</a> and <a href="http://ruby.railstutorial.org/">Michael Hartl</a> consistently providing high value external documentation via the <a href="http://railscasts.com/">railscasts</a> and the intro to <a href="http://ruby.railstutorial.org/">Rails tutorial</a> available for free.</p>
+
+<p>In conclusion, I think that there is a lot to learn from Rails, lots of great things as well as lots of things you would want to avoid. We can certainly argue on Hacker News or via comments about whether or not I'm right about Rails failures, my point will still be that the mentioned issues should be avoided in any projects, Rails here is just an example. Many of these issues are currently being addressed by the Rails team but wouldn't it be great if new projects learn from older ones and avoid making the same mistakes? So what other mistakes do you think I forgot to mention and that one should be very careful of avoiding?</p>
+
+<h3>Updates:</h3>
+
+<ol>
+<li><p>Rails 4 had an API centric app generator but it <a href="https://github.com/rails/rails/commit/6db930cb5bbff9ad824590b5844e04768de240b1">was quickly reverted</a> and will live as gem until it's mature enough.</p></li>
+<li><p>Rails 4 improved the ActiveModel API to be simpler to get started with. See <a href="http://blog.plataformatec.com.br/2012/03/barebone-models-to-use-with-actionpack-in-rails-4-0/">this blog</a> post for more info.</p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Quick dive into Ruby ORM object initialization]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization/"/>
+    <updated>2012-02-23T09:46:49+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization</id>
+    <content type="html"><![CDATA[<p>Yesterday I did some quick digging into how ORM objects are initialized and the performance cost associated to that. In other words, I wanted to see what's going on when you initialize an ActiveRecord object.</p>
+
+<p>Before I show you the benchmark numbers and you jump to conclusions, it's important to realize that in the grand scheme of things, the performance cost we are talking is small enough that it is certainly not the main reason why your application is slow. Spoiler alert: ActiveRecord is slow but the cost of initialization isn't by far the worse part of ActiveRecord. Also, even though this article doesn't make activeRecord look good, and I'm not trying to diss it. It's a decent ORM that does a great job in most cases.</p>
+
+<p>Let's get started by the benchmarks number to give us an idea of the damage (using Ruby 1.9.3 p125):</p>
+
+<pre><code>                                                             | Class | Hash  | AR 3.2.1 | AR no protection | Datamapper | Sequel |
+--------------------------------------------------------------------------------------------------------------------------------------
+.new() x100000                                               | 0.037 | 0.049 | 1.557    | 1.536            | 0.027      | 0.209  |
+.new({:id=&gt;1, :title=&gt;"Foo", :text=&gt;"Bar"}) x100000          | 0.327 | 0.038 | 6.784    | 5.972            | 4.226      | 1.986  |
+</code></pre>
+
+<p>You can see that I am comparing the allocation of a Class instance, a Hash and some ORM models. The benchmark suite tests the allocation of an empty object and one with passed attributes. The benchmark in question is available <a href="https://github.com/mattetti/benchmarks/blob/master/init_objects.rb">here</a>.</p>
+
+<p>As you can see there seems to be a huge performance difference between allocating a basic class and an ORM class. Instantiating an ActiveRecord class is 20x slower than instantiating a normal class, while ActiveRecord offers some extra features, why is it so much slower, especially at initialization time?</p>
+
+<p>The best way to figure it out is to profile the initialization. For that, I used <a href="https://github.com/tmm1/perftools.rb">perftools.rb</a> and I generated a graph of the call stack.</p>
+
+<p>Here is what Ruby does (and spends its time) when you initialize a new Model instance (click to download the PDF version):</p>
+
+<p><a href="http://github.com/mattetti/benchmarks/blob/master/ar_init_profile.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantation-by-Matt-Aimonetti.jpg" alt="Profiler diagram of AR model instantiation by Matt Aimonetti" /></a></p>
+
+<p>This is quite a scary graph but it shows nicely the features you are getting and their cost associated. For instance, the option of having the before and after initialization callback cost you 14% of your CPU time per instantiation, even though you probably almost never use these callbacks. I'm reading that by interpreting the node called ActiveSupport::Callback#run_callbacks, 3rd level from the top. So 14.1% of the CPU time is spent trying to run callbacks. As a quick note, note that 90.1% of the CPU time is spent initializing objects, the rest is spent in the loop and in the garbage collection (because the profiler runs many loops). You can then follow the code and see how the code works, creating a dynamic class callback method on the fly (the one with the long name) and then recreating the name of this callback to call it each time the object is allocated. It sounds like that's a good place for some micro optimizations which could yield up to 14% performance increase in some cases.</p>
+
+<p>Another major part of the CPU time is spent in ActiveModel's sanitization. This is the piece of code that allows you to block some model attributes to be mass assigned. This is useful when you don't want to sanitize your incoming params but want to create or update a model instance by using all the passed user params. To avoid malicious users to modify some specific params that might be in your model but not in your form, you can protect these attributes. A good example would be an admin flag on a User object. That said, if you manually initialize an instance, you don't need this extra protection, that's why in the benchmark above, I tested and without the protection. As you can see, it makes quite a big difference. The profiler graph of the same initialization without the mass assignment protection logically ends up looking quite different:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true">
+</a><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantiation-without-mass-assignment-by-Matt-Aimonetti.jpg" alt="Matt Aimonetti shows the stack trace generated by the instantiation of an Active Record model" /></a></p>
+
+<p><strong>Update:</strong> My colleague <a href="https://twitter.com/#!/glv">Glenn Vanderburg</a> pointed out that some people might assuming that the shown code path is called for each record loaded from the database. This isn't correct, the graph represents instances allocated by calling #new. See the addition at the bottom of the post for more details about what's going on when you fetch data from the DB.</p>
+
+<p>I then decided to look at the graphs for the two other popular Ruby ORMs:</p>
+
+<p><a href="http://datamapper.org/">Datamapper</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/dm_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-txs4wa7b5rdpg45aj6354xg1wt.jpg" alt="" /></a></p>
+
+<p>and <a href="http://sequel.rubyforge.org/">Sequel</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/sequel_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-p2jx6ypk35ucsgtx7p1tcabpes.jpg" alt="" /></a></p>
+
+<p>While I didn't give you much insight in ORM code, I hope that this post will motivate you to sometimes take a look under the cover and profile your code to see what's going on and why it might be slow. <strong>Never assume, always measure</strong>. Tools such as perftools are a great way to get a visual feedback and get a better understanding of how the Ruby interpreter is handling your code.</p>
+
+<h2>UPDATE:</h2>
+
+<p>I heard you liked graphs so I added some more, here is what's going on when you do Model.first:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_first_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-f23s8xctghi8mj6ax3cdw9aq25.jpg" alt="" /></a></p>
+
+<p>Model.all</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_all_profile.pdf?raw=true"><img src="https://img.skitch.com/20120224-q29q4n7bj3i96erk1enxdqxb5e.jpg" alt="" /></a></p>
+
+<p>And finally this is the code graph for a call to Model.instantiate which is called after a record was retrieved from the database to convert into an Object. (You can see the #instantiate call referenced in the graph above).</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_instantiate_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-8scmun9n1c9ufdnxa8rq2961bq.jpg" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Books to read in 2012 - recommended to me by Twitter]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/30/books-to-read-in-2012-recommended-to-me-by-twitter/"/>
+    <updated>2011-12-30T15:28:13+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/30/books-to-read-in-2012-recommended-to-me-by-twitter</id>
+    <content type="html"><![CDATA[<p>Today, I asked on Twitter what non-technical books I should read in 2012.</p>
+
+<p>I was nicely surprised to see so many of my followers send recommendations. Here is a list of 25 books that like-minded people suggested I read. Hopefully you will find a book or two to read too. Feel free to send more recommendations via the comments.</p>
+
+<p><a href="http://www.amazon.com/gp/product/0307593312/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307593312"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0307593312&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307593312" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307593312/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307593312">1Q84 by Haruki Murakami</a></p>
+
+<p>suggested by <a href="https://twitter.com/#!/mrb_bk">@mrb_bk</a> and <a href="https://twitter.com/#!/chadfowler">@chadfowler</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0385240899/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0385240899"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0385240899&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0385240899" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0385240899/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0385240899">The Floating Opera and The End of the Road by John Barth</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0385240899" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/chadfowler">@chadfowler</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0613663616/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0613663616"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0613663616&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0613663616" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0613663616/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0613663616">Into Thin Air by Jon Krakauer</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0613663616" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/bradly">@bradly</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0375714367/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0375714367"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0375714367&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0375714367" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0375714367/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0375714367">Cutting for Stone by Abraham Verghese</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0375714367" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/bradly">@bradly</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0452011876/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0452011876"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0452011876&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0452011876" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0452011876/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0452011876">Atlas Shrugged by Ayn Rand</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0452011876" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/bradly">@bradly</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307474720/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307474720"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0307474720&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307474720" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307474720/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307474720">Cien años de soledad by Gabriel Garcia Marquez</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307474720" alt="" /> (es)</p>
+
+<p>suggested by <a href="https://twitter.com/#!/romanandreg">@romanandreg</a> &amp; <a href="https://twitter.com/#!/jrfernandez">@jrfernandez</a> &amp; <a href="https://twitter.com/#!/edgarschmidt">@edgarschmidt</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0060883286/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0060883286"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0060883286&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0060883286" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0060883286/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0060883286">One Hundred Years of Solitude by Gabriel García Marquez</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0060883286" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/romanandreg">@romanandreg</a> &amp; <a href="https://twitter.com/#!/jrfernandez">@jrfernandez</a> &amp; <a href="https://twitter.com/#!/edgarschmidt">@edgarschmidt</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0553348981/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0553348981"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0553348981&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0553348981" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0553348981/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0553348981">Jitterbug Perfume by Tom Robbins</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0553348981" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/supaspoida">@supaspoida</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0062041266/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0062041266"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0062041266&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0062041266" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0062041266/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0062041266">The Sisters Brothers by Patrick deWitt</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0062041266" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/dennismajor1">@dennismajor1</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0312278497/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0312278497"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0312278497&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0312278497" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0312278497/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0312278497">The Glass Bead Game by Hermann Hesse</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0312278497" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/dj2sincl">@dj2sincl</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0679775439/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0679775439"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0679775439&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0679775439" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0679775439/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0679775439">The Wind-Up Bird Chronicle by Haruki Murakami</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0679775439" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/chadfowler">@chadfowler</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0983873100/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0983873100"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0983873100&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0983873100" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0983873100/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0983873100">Mindfire by Scott Berkun</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0983873100" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/lucasdicioccio">@lucasdicioccio</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/2226052577/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=2226052577"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=2226052577&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=2226052577" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/2226052577/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=2226052577">Les Fourmis by Bernard Werber</a> (fr)</p>
+
+<p>suggested by <a href="https://twitter.com/#!/twitty_tim">@twitty_tim</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0375725849/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0375725849"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0375725849&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0375725849" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0375725849/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0375725849">Perfume: The Story of a Murderer by Patrick Suskind</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0375725849" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/twitty_tim">@twitty_tim</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/1613820259/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1613820259"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=1613820259&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1613820259" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/1613820259/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1613820259">Les Miserables by Victor Hugo</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1613820259" alt="" /> (en, free ebook)</p>
+
+<p>suggested by <a href="https://twitter.com/#!/tutec">@tutec</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307292134/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307292134"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0307292134&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307292134" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307292134/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307292134">Song Of Ice and Fire by George R.R. Martin</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307292134" alt="" /> (Game of Thrones saga)</p>
+
+<p>suggested by <a href="https://twitter.com/#!/eeppa">@eeppa</a> &amp; <a href="http://twitter.com/jarin">@jarin</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0765329468/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0765329468"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0765329468&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0765329468" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0765329468/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0765329468">Clockwork Century by Cherie Priest</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0765329468" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/eeppa">@eeppa</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/1590201183/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1590201183"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=1590201183&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1590201183" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/1590201183/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1590201183">The Darkness that Comes Before by R. Scott Bakker</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1590201183" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/eeppa">@eeppa</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/B003GAN3VE/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B003GAN3VE"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=B003GAN3VE&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=B003GAN3VE" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/B003GAN3VE/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B003GAN3VE">Drood by Dan Simmons</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=B003GAN3VE" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/eeppa">@eeppa</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0316068225/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0316068225"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0316068225&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0316068225" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0316068225/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0316068225">This Is Water by David Foster Wallace</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0316068225" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/atduskgreg">@atduskgreg</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/B005DI71QA/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B005DI71QA"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=B005DI71QA&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=B005DI71QA" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/B005DI71QA/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B005DI71QA">Anathem by Neal Stephenson</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=B005DI71QA" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/jarin">@jarin</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0812550706/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0812550706"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0812550706&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0812550706" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0812550706/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0812550706">Ender's Game by Orson Scott Card</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0812550706" alt="" /> (entire saga)</p>
+
+<p>suggested by <a href="https://twitter.com/#!/jarin">@jarin</a> &amp; <a href="https://twitter.com/#!/edgarschmidt">@edgarschmidt</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/344245302X/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=344245302X"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=344245302X&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=344245302X" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/344245302X/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=344245302X">Snow Crash by Neal Stephenson</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=344245302X" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/jarin">@jarin</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/1422171647/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1422171647"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=1422171647&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1422171647" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/1422171647/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1422171647">Fixing the Game by Roger L. Martin</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=1422171647" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/jarkko">@jarkko</a></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307387895/ref=as_li_ss_il?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307387895"><img src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&amp;Format=_SL110_&amp;ASIN=0307387895&amp;MarketPlace=US&amp;ID=AsinImage&amp;WS=1&amp;tag=merbist-20&amp;ServiceVersion=20070822" alt="" /></a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307387895" alt="" /></p>
+
+<p><a href="http://www.amazon.com/gp/product/0307387895/ref=as_li_ss_tl?ie=UTF8&amp;tag=merbist-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0307387895">The Road by Cormac McCarthy</a><img src="http://www.assoc-amazon.com/e/ir?t=merbist-20&amp;l=as2&amp;o=1&amp;a=0307387895" alt="" /></p>
+
+<p>suggested by <a href="https://twitter.com/#!/mrreynolds">@mrreynolds</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Developing a Curriculum]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/21/developing-a-curriculum/"/>
+    <updated>2011-12-21T06:57:27+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/21/developing-a-curriculum</id>
+    <content type="html"><![CDATA[<p>Recently I asked a friend of mine to give me pointers on how to develop a curriculum (he used to teach an education PHD program), after discussing his response on Twitter, people asked me to put it somewhere, so here it is:</p>
+
+<p>Process to develop a curriculum:</p>
+
+<p><strong>Purpose</strong>. <em>Know why you're doing what you're doing.</em></p>
+
+<ul>
+<li>You know how to do this.</li>
+</ul>
+
+
+<p><strong>Product</strong>. <em>Start with the end in mind.</em></p>
+
+<ul>
+<li><p>What does the student look like when they walk out the door at the end of the training.</p></li>
+<li><p>Usually, we break these down into <strong>Knowledge</strong>, <strong>Skills</strong>, or <strong>Attitudes</strong>.</p></li>
+<li><p>Sometimes it's helpful to see a photograph or drawing of a someone who finished the program and just talk about what they can do that makes them successful.</p></li>
+<li><p>This "product" should be connected and help you accomplish your mission</p></li>
+</ul>
+
+
+<p><strong>Practices</strong>. <em>Then ask yourself, "How do people become like this?"</em></p>
+
+<ul>
+<li><p>If you can break down your Product into 3-5 bit-sized chunks, then see how people learn each one of those skills, gain each one of those knowledge points, and how to they gain the attitudes you want them to have.</p></li>
+<li><p>This one is much easier the more experience you have in seeing people develop the "Product."</p></li>
+<li><p>This is also easier to determine when you understand <a href="http://en.wikipedia.org/wiki/Learning_theory_(education">Learning Theory</a>).</p></li>
+<li><p>The results from this section will result in a list of:</p>
+
+<ul>
+<li><p>       Activities or experiences</p></li>
+<li><p>       Resources. What books, website, teachers, software, etc. will help them learn more effectively and efficiently</p></li>
+<li><p>       Assessments. How you would know if the activity was helpful?</p></li>
+</ul>
+</li>
+</ul>
+
+
+<p><strong>Plans</strong>. <em>Make your plans based on the practices you've determined you've needed.</em></p>
+
+<p>On a related topic, Chad Fowler posted an interesting <a href="http://chadfowler.com/2011/12/21/re-thinking-software-development-education">blog post about what LivingSocial is doing to change the software development education</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

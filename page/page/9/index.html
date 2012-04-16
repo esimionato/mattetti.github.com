@@ -1,0 +1,569 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Matt Aimonetti</title>
+    <meta name="author" content="Matt Aimonetti">
+
+    
+    <meta name="description" content="The Ruby Revolution, Take II [caption id=&#8221;attachment_638&#8221; align=&#8221;alignright&#8221; width=&#8221;300&#8221; caption=&#8221;Mohandas &hellip;">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+
+    <link href="/Matt-Aimonetti/atom.xml" rel="alternate" title="Matt Aimonetti" type="application/atom+xml">
+    <link rel="canonical" href="http://mattetti.github.com/Matt-Aimonetti">
+    <link href="/Matt-Aimonetti/favicon.png" rel="shortcut icon">
+    <link href="/Matt-Aimonetti/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30927742-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+
+<body>
+	<header><div id='meta' class='inner'>
+  <div id="matt-aimonetti" itemscope itemtype="http://data-vocabulary.org/Person">
+    <img class="photo left" src="/Matt-Aimonetti/images/matt_aimonetti.jpg" />
+    <h1 class="left"><a itemprop="name" href="/Matt-Aimonetti/">Matt Aimonetti</a></h1>
+    <br>
+    <ul class='left'>
+      <li><a href='http://www.linkedin.com/in/mattaimonetti'>Software Architecture</a> at <span itemprop="affiliation">LivingSocial</span></li>
+      <li><a href='http://www.oreillynet.com/pub/au/4385'>Author</a> at <span itemprop="affiliation">O'Reilly</span></li>
+      <li>Open-source <a href="/articles/archives">evangelist</a></li>
+      <li><a href="https://github.com/mattetti">Web engineer</a></li>
+    </ul>
+  <nav class="menu left"><ul class="main">
+	<li><a href="/Matt-Aimonetti/">Articles</a></li>
+	<li><a href="/Matt-Aimonetti/posts/archives">Archives</a></li>
+</ul>
+</nav>
+  <div class="right">
+    <form class="search right" action="http://google.com/search" method="get">
+      <input class="left" type="text" name="q" results="0">
+      <input type="hidden" name="q" value="site:mattetti.github.com/Matt-Aimonetti">
+    </form>
+    <div class="social right">
+      
+      
+      <a class="google" rel='me' href="https://plus.google.com/101114877505962271216?rel=author" title="Google+">Google+</a>
+      
+      
+      <a class="twitter" rel='me' href="http://twitter.com/merbist" title="Twitter">Twitter</a>
+      
+      
+      <a class="github" rel='me' href="https://github.com/mattetti" title="GitHub">GitHub</a>
+      
+      
+      
+      <a class="linkedin" rel='me' href="http://www.linkedin.com/in/mattaimonetti" title="Linkedin">Linkedin</a>
+      
+      
+      <a class="rss" rel='me' href="/Matt-Aimonetti/atom.xml" title="RSS">RSS</a>
+      
+    </div>
+  </div>
+</div>
+
+</header>
+	
+<!--
+<div id="banner" class="inner">
+	<div class="container">
+		<ul class="feed"></ul>
+	</div>
+	<small><a href="http://twitter.com/merbist">merbist</a> @ <a href="http://twitter.com">Twitter</a></small>
+	<div class="loading">Loading...</div>
+</div>
+<script src="/Matt-Aimonetti/javascripts/twitter.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('#banner').getTwitterFeed('merbist', 0, false);
+	})(jQuery);
+</script>
+-->
+
+
+	<div id="content" class="inner">
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/11/16/the-ruby-revolution-take-ii/">The Ruby Revolution, Take II</a></h1>
+    <div class="entry">
+        <p>[caption id=&#8221;attachment_638&#8221; align=&#8221;alignright&#8221; width=&#8221;300&#8221; caption=&#8221;Mohandas Karamchand Gandhi&#8221;]<img src="http://merbist.com/wp-content/uploads/2009/11/GANDHI.jpg" alt="Mohandas Karamchand Gandhi" />[/caption]</p>
+
+<p>My recent &#8217;<a href="http://merbist.com/2009/11/09/the-ruby-revolution-is-over">Ruby revolution being over</a>&#8217; blog post generated quite a <a href="http://merbist.com/2009/11/09/the-ruby-revolution-is-over/#comments">lot of comments</a>.
+Let&#8217;s be honest, I did not expect less from the readers.</p>
+
+<p>However, I noticed three types of reactions I would like to address:</p>
+
+<ul>
+<li><p>It was not a Ruby revolution, it was a Rails revolution</p></li>
+<li><p>The revolution has stalled due to no major enterprise backing</p></li>
+<li><p>The revolution will only be over when we will reach a greater adoption</p></li>
+</ul>
+
+
+<p>First of all, as <a href="http://merbist.com/2009/11/09/the-ruby-revolution-is-over/#comment-817">Joe correctly mentioned</a>, for me, the revolution is not about specifics or individuals. It&#8217;s really about the big picture.</p>
+
+<p>The influence Ruby had and still has on the IT world seems to be undermined by some.
+Ruby is a dynamic, truly Object Oriented programming scripting language <strong>designed for humans first</strong>.
+The real paradigm shift is in the fact that Ruby was designed to make programming fast, enjoyable and easy instead of being optimized for the machines running it.
+This is for me the essence of the revolution and it is meant to transcend the scope of the Ruby language.</p>
+
+<p>The way I see it, Yukihiro Matsumoto (Matz) is more of an artist than a technician. He had a vision for software development. <strong>Programming languages cannot be optimized/designed for both machines and humans, the language designer has to choose which one he wants to privilege.</strong></p>
+
+<p>Most programming languages believe that it&#8217;s up to the programmer to make an extra effort since he is smarter and easier to optimize than a machine. Matz questioned this approached and decided to turn things around. The result is one of the reasons why developers seem to just fall in love with Ruby.</p>
+
+<h3>It was not a Ruby revolution, it was a Rails revolution.</h3>
+
+<p>I am not denying that there <strong><em>also</em></strong> was a Rails revolution.
+But if you look at it, Rails and its revolution are a direct effect from Ruby&#8217;s revolution.
+One might argue that it is actually an extension of Ruby&#8217;s philosophy. But what is Rails if not a web framework designed to make web development fast, easy and enjoyable?
+Without Ruby there would not have been Rails and that was my point, the underlying revolution comes from the language itself.</p>
+
+<h3>The revolution has stalled due to no major enterprise backing.</h3>
+
+<p>That&#8217;s an interesting comment. It is true that .NET and Java are still dominating the enterprise world. But let&#8217;s be clear, Ruby was not designed to please &#8220;suit people&#8221;.
+And to this day, there is still a strong feeling, from some individuals against the enterprise.
+In the past, DHH openly said that he did not care nor wanted to hear about the enterprise, more recently, Obie Fernandez, during one of his talks said: <a href="http://blip.tv/file/2733212">&#8220;Fuck the enterprise&#8221;</a> (49:39).
+<strong>But the truth is that Ruby and the so called enterprise, both, are changing.</strong>
+The smart people in the enterprise world saw potential in Ruby and decided to give it a chance. An easy way to include Ruby&#8217;s philosophy without breaking the fragile enterprise equilibrium was to inject Ruby in the midst of well known and respected technologies such as Java and .NET. The enterprise can now use &#8220;re-branded Ruby versions&#8221; with &#8220;new taste or &#8216;improved&#8217; flavor&#8221; like JRuby, Scala, groovy, IronRuby.
+I work for some enterprise clients and I can tell you that they &#8216;also&#8217; use Ruby. Mainly because developers love the language.
+Microsoft, Apple and SAP investing in their own implementation of the language is yet another example that the enterprise recognizes the value of Matz&#8217;s work.
+Nobody can blame them to try to make Ruby fit more their requirements.
+So, at the end of the day, Ruby is not the #1 enterprise language and Rails isn&#8217;t used by the large majority of enterprise web apps, but that is NOT the point. Ruby has influenced the enterprise and we will see its effects for many years.</p>
+
+<h3>The revolution will only be over when we will reach a greater adoption</h3>
+
+<p>Saying that is missing the point entirely. A revolution is a step towards a situation change. Things don&#8217;t change right away after a revolution. It takes a long time for mentalities to evolve and for people to change their habits.
+The consequences of a revolution are to be studied over the decades following the event. Take smalltalk for instance. Smalltalk adoption was not that great, however it brought a paradigm shift that directly influenced languages such as Ruby, Python and Objective-C.
+So, again, do not focus on the adoption but instead look at the influence of the Ruby revolution and the ripple effect around it.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-16T08:05:55+01:00" pubdate data-updated="true">Nov 16<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/ruby/'>ruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/11/09/the-ruby-revolution-is-over/">The Ruby Revolution Is Over</a></h1>
+    <div class="entry">
+        <p><img src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg/300px-Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg" alt="Liberté guidant le peuple - Eugene Delacroix posted by Matt Aimonetti" /></p>
+
+<p>According to wikipedia, a <strong>revolution</strong> (from the latin <em>revolutio</em>, &#8220;a turn around&#8221;) is a fundamental change in power or organizational structures that takes place in a relatively short period of time.</p>
+
+<p>Somehow, I believe this is exactly what Ruby has done in the programming world, especially with the help of Rails. Over the last few years, Ruby lead a mini revolution in the midst of software development. Thanks to Ruby, developers now look at software development differently. One thing for sure, it pushed DHH to write Rails and then convinced thousands of people to develop Ruby based applications on a daily basis.</p>
+
+<h3>How did it happen?</h3>
+
+<p>Let&#8217;s take a look at history of revolutions. Some people get frustrated their situation, they try to find workarounds until it&#8217;s just too much and the revolution kicks in.</p>
+
+<p>Ruby came up with a new holistic perspective on things. Unlike most other programming languages, one of the main key value of Ruby is that writing code should feel right for the developer. You feel good about it because the language was written for humans and not machines. Basically, the language was designed to make you productive because it&#8217;s designed to please you.</p>
+
+<p>As people were discovering web 2.0, Ruby also came with an opinionated framework, pushing for productivity, testing, simplicity and elegance. People started to see a new way of doing things and it quickly became the new, cool technology. Rails became a buzz word, developers were hired to work on cool projects, and books were selling by the thousands.</p>
+
+<h3>What did it change?</h3>
+
+<p>If you ask my mom, she would probably say: nothing, except that now my son works from his home office and he seems to really enjoy what he does for living.</p>
+
+<p>Relatively speaking, Ruby did not change the way we work or live. However, I believe that it has influenced many software developers around the globe. Why else do you think that companies like Microsoft, Apple or SAP are working on their own implementation of the Ruby language?</p>
+
+<p>When I first discovered Ruby, I was amazed at how &#8220;right&#8221; it felt, at how much fun it was to write code using its syntax and idioms. Now, if I don&#8217;t get that feeling when testing a programming language, I think there is something wrong.</p>
+
+<p>The Ruby community also revived the Agile/XP world. Testing being a strong value of the community, we spent a lot of time discussing TDD, BDD, integration test as well as other practices such as pair programming, code review, sprints etc..</p>
+
+<p>A few years ago, when people were asking me what programming language I would write their app in, I would reply Ruby and had to explain what it was, why it is great and would have to answer a lot of questions from potential clients. Nowadays, people don&#8217;t even argue, sites like hulu.com, twitter.com, yellowpages.com and many others are written in Ruby and it&#8217;s just part of the tools known to work very well.</p>
+
+<h3>The revolution is over!</h3>
+
+<p>Yes, Ruby made it&#8217;s revolution and the world &#8220;has changed&#8221;. But a real movement doesn&#8217;t die after its revolution, that&#8217;s actually when it has to be strong and defend its values.</p>
+
+<p>This doesn&#8217;t mean that Ruby is dead or that Rails is &#8220;passé&#8221;. To the contrary, Ruby imposed itself as a new valued and respected player, a new standard if you will.</p>
+
+<p>Ruby is certainly not the &#8220;new kid in the block&#8221;anymore nor the &#8220;popular kid&#8221;, however lots of older kids seem to want to have her on their team. (.NET, Java, Objective-C can all use Ruby)</p>
+
+<p>The TDD + Ruby combo doesn&#8217;t surprise anyone anymore and the Enterprise is slowly but surely adopting Ruby. Ruby is now just getting better, tools and libraries are improving and the amount of users is growing.</p>
+
+<p>Certainly the Ruby community is still small compared to other software developer communities, but the fundamental change was done and we are now working on improvement and keeping things running smoothly, growing and getting new ideas inspired by our experience and other communities.</p>
+
+<p>Long live Ruby!</p>
+
+<p><a href="http://merbist.com/2009/11/16/the-ruby-revolution-take-ii/">See my follow up.</a></p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-09T00:10:16+01:00" pubdate data-updated="true">Nov 9<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/ruby/'>ruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/10/25/macruby-browse-for-folder-or-file-dialog/">MacRuby Tips: Browse for Folder or File Dialog</a></h1>
+    <div class="entry">
+        <p>This is yet another pretty simple tip.
+Use case: let say you want your applications users to choose one or multiple files or folder on their file system. A good example would be that you want the user to choose a file to process or a folder where to save some data.</p>
+
+<p><img src="http://img.skitch.com/20091025-nc89xd2ywqutqqddnwm2met3x4.jpg" alt="" /></p>
+
+<p>In the example above, I added a browse button and a text field.</p>
+
+<p>I would like my users to click on the browse button, locate a folder and display it in the text field.</p>
+
+<p>In your MacRuby controller, use a simple action method as well as an accessor to the text field:</p>
+
+<pre><code>attr_accessor :destination_path
+
+def browse(sender)
+end
+</code></pre>
+
+<p>Now, in Interface builder bind the destination_path outlet to the text field you want to use to display the path and bind the button to the browse action.</p>
+
+<p>Let&#8217;s go back to our action method and let&#8217;s create a dialog panel, set some options and handle the user selection:</p>
+
+<pre><code>def browse(sender)
+  # Create the File Open Dialog class.
+  dialog = NSOpenPanel.openPanel
+  # Disable the selection of files in the dialog.
+  dialog.canChooseFiles = false
+  # Enable the selection of directories in the dialog.
+  dialog.canChooseDirectories = true
+  # Disable the selection of multiple items in the dialog.
+  dialog.allowsMultipleSelection = false
+
+  # Display the dialog and process the selected folder
+  if dialog.runModalForDirectory(nil, file:nil) == NSOKButton
+  # if we had a allowed for the selection of multiple items
+  # we would have want to loop through the selection
+    destination_path.stringValue = dialog.filenames.first
+  end
+end
+</code></pre>
+
+<p>That&#8217;s it, your user can now browse for a folder and the selection will be displayed in the text field. Look at the <a href="http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSOpenPanel_Class/Reference/Reference.html">NSOpenPanel documentation</a> for more details on the Cocoa API.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-25T15:52:14+01:00" pubdate data-updated="true">Oct 25<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/tutorial/'>Tutorial</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/macruby/'>macruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/10/23/railssummit-2009/">RailsSummit - an Amazing Adventure</a></h1>
+    <div class="entry">
+        <p>I have had the opportunity to go to and speak at many conferences but this year was the first time I had the chance to go to <a href="http://railssummit.com.br">RailsSummit</a> in São Paulo, Brazil.</p>
+
+<p>I was really looking forward to this trip and I have to say it went beyond my expectations. I had really good feedback from people like the <a href="http://www.phusion.nl/">Phusion guys</a> (Ninh &amp; Hongli), Gregg Pollack and others.</p>
+
+<p>For those who don&#8217;t know, RailsSummit is one of the biggest, if not the biggest, Ruby event in Latin America. It&#8217;s organized yearly by <a href="http://www.locaweb.com.br/">Locaweb</a>, the #1 hosting company in Brazil (props to Akita &amp; Cristiane for their work).</p>
+
+<p><img src="http://farm3.static.flickr.com/2761/4027342992_789777fd03_m_d.jpg" alt="" /></p>
+
+<p>As part of my involvement in the Ruby community I have met a lot of Brazilians always willing to help and especially giving time to translate content. (A good example would be the <a href="http://wiki.rubyonrails.org/pt/start">Portuguese version of the Rails wiki</a> or <a href="http://blog.plataformatec.com.br/">José Valim</a> GSOC contribution) However, I did not realize how fast Rails was growing over here.</p>
+
+<p>To come back to the conference, I have to say it was one of the best conference I have gone to. Chad Fowler, who gave the opening keynote, later told me that it reminded him of the first Ruby conferences in the US . For me, what made a huge difference was the fact that it was a very positive conference. People were happy to be here, eager to share and you could feel the passion. Unfortunately, I missed the first few Ruby conferences, but I can totally imagine how must have been. Passionate people, not trying to push their products but instead, share the cool stuff they&#8217;ve been working on. This is exactly the feeling I had during this conference.</p>
+
+<p>Maybe it&#8217;s because I don&#8217;t understand Portuguese well enough or maybe it&#8217;s just a cultural thing, but the people at the conference were just super friendly and always willing to help. I was really glad to meet those who have been using some of my work, some new people to Ruby and people who don&#8217;t do Ruby but were just interested in knowing what was going on in the Ruby world.</p>
+
+<p><img src="http://farm3.static.flickr.com/2719/4027357802_1082f38090.jpg" alt="" /></p>
+
+<p>The schedule was pretty packed and the discussions very interesting, you could certainly feel the excitement in the air. Ruby seems to catching up quickly over there. Brazilian Rubyists seem to be very pragmatic and a good illustration of that was certainly made by <a href="http://improveit.com.br/en">Vinicus Teles</a>, Brazil Agile XPert, who shared tips on how to release a successful product.</p>
+
+<p>I stayed a few days after the conference and went to visit the Rubyists in Rio. Rio is a great city. It has some of the best soccer players in the world and some seriously talented software developers. Ruby &amp; Rails are not just the new trendy startup secret to success, companies like globo.com, currently the largest TV network in <a href="http://en.wikipedia.org/wiki/Latin_America">Latin America</a> and the fourth largest in the world, also started using Ruby and Rails. I had the opportunity to visit their office and meet their teams. It&#8217;s very exciting to see how they use Agile/XP and Ruby and how they seem to be so successful. But I will keep that for another post.</p>
+
+<p>Overall, even though the actual traveling to/from Brazil was a bit long, RailsSummit was a blast. I really hope to be able to come back next year, and by then, hopefully my Portuguese will have improved.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-23T10:17:45+02:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/10/09/macruby-tips-capturing-keyboard-events/">MacRuby Tips: Capturing Keyboard Events</a></h1>
+    <div class="entry">
+        <p>If you are writing any type of games you might want your users to interact with your application using their keyboards.</p>
+
+<p>This is actually not that hard. The approach is simple and fast forward if you are used to Cocoa.</p>
+
+<p>Everything starts in Interface Builder, add a custom view instance to your window.</p>
+
+<p><img src="http://img.skitch.com/20091010-8tf834wf9se6y81h2jf7a7e5he.jpg" alt="" /></p>
+
+<p>Now switch to your project and a new file with a class called KeyboardControlView and make in inherit from NSView. We are creating a subview of NSView so we will be able to make our top view &#8220;layer&#8221; use this subclass.</p>
+
+<pre><code>class KeyboardControlView &lt; NSView
+  attr_accessor :game_controller
+
+  def acceptsFirstResponder
+    true
+  end
+
+end
+</code></pre>
+
+<p>As you can see in the example above, I added an attribute accessor. attr_accessor class method creates getters and setters. It&#8217;s basically the same as writing:</p>
+
+<pre><code> def game_controller=(value)
+  @game_controller = value
+end
+
+def game_controller
+  @game_controller
+end
+</code></pre>
+
+<p>MacRuby is keeping an eye on these accessors and let bind outlets to them.
+But let&#8217;s not get ahead of ourselves, we&#8217;ll keep that for another time.</p>
+
+<p>Let&#8217;s go back to our newly created class. Notice, we also added a method called <code>
+[acceptsFirstResponder](http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSResponder_Class/Reference/Reference.html#//apple_ref/occ/instm/NSResponder/acceptsFirstResponder)</code> and returns true. <a href="http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSResponder_Class/Reference/Reference.html#//apple_ref/occ/instm/NSResponder/acceptsFirstResponder">acceptsFirstResponder</a> returns false by default.
+But in this case we want it to return true so our new class instance can be first in the responder chain.</p>
+
+<p>Now that our class is ready, let&#8217;s go back to Interface Builder, select our new custom view and click on the inspector button.</p>
+
+<p><img src="http://img.skitch.com/20091010-1trkxhw2r2paaik3ipa4gtytgg.jpg" alt="" />
+Click on the (i) icon and in the Class field choose our new KeyboardControlView.
+Yep, our new class just shows up by magic, it&#8217;s also called the lrz effect, just don&#8217;t ask ;)
+So now when our application starts, a new instance of our NSView class is created and Cocoa will call different methods based on events triggered.</p>
+
+<p>The two methods we are interested in reimplementing are keyDown and keyUp. They get called when a key gets pressed or released.</p>
+
+<pre><code>def keyDown(event)
+  characters = event.characters
+  if characters.length == 1 &amp;&amp; !event.isARepeat
+    character = characters.characterAtIndex(0)
+    if character == NSLeftArrowFunctionKey
+      puts "LEFT pressed"
+    elsif character == NSRightArrowFunctionKey
+      puts "RIGHT pressed"
+    elsif character == NSUpArrowFunctionKey
+      puts "UP pressed"
+    elsif character == NSDownArrowFunctionKey
+      puts "DOWN pressed"
+    end
+  end
+ super
+end
+</code></pre>
+
+<p>I don&#8217;t think the code above needs much explanation. The only things that you might not understand are &#8216;event.isARepeat&#8217;. This method returns true if the user left his/her finger on the key. The other thing is the use of the &#8216;super&#8217; call at the end of the method. Basically, we reopened a method that was already defined and we don&#8217;t want to just overwrite it, we just want to inject out code within the existing method, so once we are done handling the event, we just pass it back to original method.</p>
+
+<p>Final result:</p>
+
+<pre><code>class KeyboardControlView &lt; NSView
+  attr_accessor :game_controller
+
+  def acceptsFirstResponder
+    true
+  end
+
+  def keyDown(event)
+    characters = event.characters
+    if characters.length == 1 &amp;&amp; !event.isARepeat
+      character = characters.characterAtIndex(0)
+      if character == NSLeftArrowFunctionKey
+        puts "LEFT pressed"
+      elsif character == NSRightArrowFunctionKey
+        puts "RIGHT pressed"
+      elsif character == NSUpArrowFunctionKey
+        puts "UP pressed"
+      elsif character == NSDownArrowFunctionKey
+    puts "DOWN pressed"
+      end
+    end
+    super
+  end
+
+  # Deals with keyboard keys being released
+  def keyUp(event)
+    characters = event.characters
+    if characters.length == 1
+      character = characters.characterAtIndex(0)
+      if character == NSLeftArrowFunctionKey
+       puts "LEFT released"
+      elsif character == NSRightArrowFunctionKey
+        puts "RIGHT released"
+      elsif character == NSUpArrowFunctionKey
+       puts "UP released"
+      elsif character == NSDownArrowFunctionKey
+        puts "DOWN released"
+      end
+    end
+    super
+  end
+
+end
+</code></pre>
+
+<p>Now it&#8217;s up to you to handle the other keystrokes and do whatever you want. That&#8217;s it for this tip, I hope it helps.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-09T19:24:04+02:00" pubdate data-updated="true">Oct 9<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/tutorial/'>Tutorial</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/macruby/'>macruby</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+<nav id="pagenavi">
+    
+        <a href="/Matt-Aimonetti/page/page/8/" class="prev">Prev</a>
+    
+    
+        <a href="/Matt-Aimonetti/page/page/10/" class="next">Next</a>
+    
+    <a href="/Matt-Aimonetti/articles/archives" class="center">Archives</a>
+</nav>
+</div>
+	<footer class="inner"><div id='copyright-notice'>Copyright &copy; 2012 Matt Aimonetti</div>
+</footer>
+	<script src="/Matt-Aimonetti/javascripts/jquery.fancybox.pack.js"></script>
+<script src="/Matt-Aimonetti/javascripts/slash.js"></script>
+
+
+
+
+</body>
+</html>

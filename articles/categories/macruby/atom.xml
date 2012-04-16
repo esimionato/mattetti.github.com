@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: macruby | Matt Aimonetti]]></title>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/macruby/atom.xml" rel="self"/>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
+  <updated>2012-04-17T01:22:39+02:00</updated>
+  <id>http://mattetti.github.com/Matt-Aimonetti/</id>
+  <author>
+    <name><![CDATA[Matt Aimonetti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hey Apple, please be nice and share]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/03/07/hey-apple-please-be-nice-and-share/"/>
+    <updated>2011-03-07T09:00:56+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/03/07/hey-apple-please-be-nice-and-share</id>
+    <content type="html"><![CDATA[<p>My name is Matt Aimonetti, and in my free time I work on Apple's open source <a href="http://www.ruby-lang.org">Ruby</a> implementation named <a href="http://macruby.org">MacRuby</a>. I'm also the author of <a href="http://oreilly.com/catalog/0636920000723">O'Reilly's MacRuby book</a>. As you can imagine, I'm very thankful that Apple initiated the MacRuby project a few years ago and have been an avid supporter. MacRuby is awesome to develop OS X native applications using the Ruby language and even allows you to compile down your apps to machine code. It's a great alternative to Objective-C.</p>
+
+<p><a href="http://www.apple.com/macosx/lion/"><img src="https://img.skitch.com/20111012-kyiy9nhx5n9h9wafucyh8p3knx.jpg" alt="" /></a></p>
+
+<p>MacRuby is so awesome that Apple is even <a href="http://twitter.com/GeorgeBellos/status/41595085179203584">using it in its upcoming OS</a>. The only problem is that Apple apparently decided to not share MacRuby with other OS X developers and put <a href="http://yfrog.com/h8hhlydj">MacRuby in the OS private frameworks</a>. While this doesn't affect the project itself, it does affect OS X developers like myself who can't link to <a href="http://www.apple.com/macosx/lion/">Lion</a>'s private MacRuby framework and are forced to embed MacRuby with their applications.</p>
+
+<p>That's why I have opened a <a href="http://bugreporter.apple.com/">ticket on Apple radar system</a> to ask that MacRuby be made a public framework.</p>
+
+<p>If you also want Apple to make this change, <a href="http://bugreporter.apple.com/">please take a minute and let them know</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Automatically generating BridgeSupport files]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/02/19/bridgesupport-build/"/>
+    <updated>2011-02-19T16:29:07+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/02/19/bridgesupport-build</id>
+    <content type="html"><![CDATA[<p>Today I was helping someone write an Objective-C framework around <a href="http://cocos2d.org/">cocos2d</a>.</p>
+
+<p>C/Objective-C code can be called directly from MacRuby. However the Obj-C code you would like to use might be using some ANSI C symbols that are non-object-oriented items such as constants, enumerations, structures, and functions. To make these items available to our MacRuby code, you need to generate a <a href="http://ofps.oreilly.com/titles/9781449380373/ch03.html#_using_objective_c_or_c_code">BridgeSupport file as explained in this section of my book</a>.</p>
+
+<p>In our case, we were working on the framework and I didn't feel like manually having to regenerate the BridgeSupport file every single time I would compile our code. So instead I added a new build phase in our target.</p>
+
+<p>[caption id="" align="aligncenter" width="741" caption="Adding a new step to our build"]<a href="https://img.skitch.com/20110220-b685ag2cef8qm69uwn73e3equ4.png"><img src="https://img.skitch.com/20110220-b685ag2cef8qm69uwn73e3equ4.png" alt="" /></a>[/caption]</p>
+
+<p>And I added the following script to run at the end of the build:</p>
+
+<p>`</p>
+
+<h1>This step generated the bridgesupport file for the framework</h1>
+
+<p>PATH="$PATH:/usr/local/bin"
+mkdir -p $TARGET_BUILD_DIR/$PROJECT_NAME.framework/Resources/BridgeSupport/
+gen_bridge_metadata --64-bit -f $TARGET_BUILD_DIR/$PROJECT_NAME.framework/ -o $TARGET_BUILD_DIR/$PROJECT_NAME.framework/Resources/BridgeSupport/$PROJECT_NAME.bridgesupport
+`</p>
+
+<p>Th<code>e script just executes the steps required to add the BridgeSupport file to your framework. I can now rebuild my framework without having to worry about BridgeSupport.
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MacRuby book update]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/01/15/macruby-book-update/"/>
+    <updated>2011-01-15T11:48:05+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/01/15/macruby-book-update</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MacRuby, WebKit and JS]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/10/19/macruby-webkit-and-js/"/>
+    <updated>2010-10-19T00:05:37+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/10/19/macruby-webkit-and-js</id>
+    <content type="html"><![CDATA[<p>I was working on a piece of code using MacRuby, Webkit and JavaScript. Calling JS from MacRuby is really straight forward but calling Ruby from JS is a but tricky. There is actually a known bug in MacRuby which was giving me a hard time. The bug should be fixed in 0.8 if everything goes according to plan. In the mean time here is a quick run down:</p>
+
+<p>The JS bridge only works when using WebKit so we need to create a tiny browser to test our code. What we are going to do is to make an object available via JS and also trigger some JS to test the bridge both ways. Here is the full code:</p>
+
+<p>On the object we want to make available via JS (instance of Cat), we have to make the methods available by defining def self.isSelectorExcludedFromWebScript(sel); false end</p>
+
+<p>To trigger JS from Ruby, we use #evaluateWebScript on windowScriptObject. In our example we are using JQuery since it's already loaded in the DOM. We also go full loop by printing out the result of JS calling a method on our Ruby object.</p>
+
+<p>Here is the thing, MacRuby doesn't have the age method compiled/registered yet so JS can't call it. To fix this problem we force the registration of the method by doing: @kitty.respondsToSelector("age").  Note that if #age was taking arguments, we would have to use @kitty.respondsToSelector("age:") and then evaluate the JS like that: @js_engine.evaluateWebScript('animal.age_(12)')</p>
+
+<p>Hopefully by the time you need to do something like that, MacRuby 0.8 will be released and you won't have to worry about that :)</p>
+
+<p>For more information about calling Obj-C/Ruby from JavaScript, <a href="http://developer.apple.com/library/mac/#documentation/AppleApplications/Conceptual/SafariJSProgTopics/Tasks/ObjCFromJavaScript.html#//apple_ref/doc/uid/30001215-BBCBFJCD">read this doc</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Writing an open licensed book]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/05/09/writing-an-open-licensed-book/"/>
+    <updated>2010-05-09T22:40:06+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/05/09/writing-an-open-licensed-book</id>
+    <content type="html"><![CDATA[<p>To celebrate last week's release of <a href="http://www.macruby.org/blog/2010/04/30/macruby06.html">MacRuby 0.6</a>, O'Reilly and I started publishing the draft of my MacRuby book online: <a href="http://macruby.labs.oreilly.com/">http://macruby.labs.oreilly.com/</a></p>
+
+<p>I started thinking about working on "<a href="http://macruby.labs.oreilly.com/">MacRuby: The Definitive Guide</a>" last year when I realized that the project had a great future but there was a serious lack of documentation. With the support of the MacRuby team, I worked on a table of contents and a pitch. The next step was to decide what we wanted to do with the book.</p>
+
+<p>I know a lot of technical book authors and most of them will tell you the same thing: if you think that you are going to make money writing a book, you are wrong. Even if your book sells well, because of the time invested in writing the book, you are probably better off doing consulting work and charging by the hour.</p>
+
+<p>So since day one, I knew that this project would not make me rich. The goal was to share knowledge not to reimburse my mortgage or save California from bankruptcy. While publishing a web book is great, distribution is quite limited, especially if you try to reach people outside of your network. That's why I decided to start talking to a few publishers. Most publishers I talked to were interested in working on the book, however they were not really keen on publishing a <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/us/">Creative Commons Attribution-Noncommercial-No Derivative</a> licensed book.</p>
+
+<p>Let me explain why I think releasing technical books under a CC license is important. As you might know (or have figured out by now), I am not a native English speaker. I actually learned my first English words thanks to the computer my dad had at home. The problem when you don't live in an English speaking country and you want to learn about the cutting edge technology is that you have to understand English.  Thanks to the Internet, learning and practicing English is now much easier that it used to be. However, if you want to have access to books, most of the time you have to wait until someone translates the book and publishes it in your country or you have to manage to get an English version delivered to your country. This is often a pain because of national credit card limitations, international delivery restrictions etc... If you manage to find a way to get a copy, the book ends up costing a lot of money.</p>
+
+<p>What does that mean in practice? Most of the technical books are first available in the English speaking western world, then slowly translated and/or distributed around the world. By the time you get a legal copy in Bolivia, Algeria or Vietnam, a new edition is probably out in the US probably because the technology evolved. Maybe that explains some of the book piracy worldwide?</p>
+
+<p>Think about it for a minute: knowledge is power and time is money. And what do we do? We delay knowledge distribution. This is why I am a big fan of the <a href="http://khanacademy.org/">Khan Academy</a> and its awesome free online courses.</p>
+
+<p>Turns out <a href="http://oreilly.com/">O'Reilly</a> shares my vision and has already published a lot of books under various open licenses: <a href="http://oreilly.com/openbook/">http://oreilly.com/openbook/</a> I was also interested in publishing the content of my book ASAP so people could access it right away even though there would be lots of typos and missing content. This is also something O'Reilly has already done with the <a href="http://books.couchdb.org/relax/">CouchDB</a> and the <a href="http://labs.oreilly.com/ofps.html">Scala</a> books.</p>
+
+<p>Talking with <a href="http://twitter.com/janl">Jan Lehnardt</a> about his experience working with O'Reilly on the <a href="http://books.couchdb.org/relax/">'CouchDB: The definitive guide'</a> book, I realized that we seem to have some shared interests. I contacted Jan's editor and we decided to start working on the MacRuby book. The book will be available later on in all the usual commercial formats and I hope people will show their support so O'Reilly will be encouraged in their choice to continue publishing CC licensed book. At the end of the day, purchasing a CC licensed book helps supporting the authors, the publishers but also all the people who can't have access to the latest technical books.</p>
+
+<p>Finally, working on a book is not an easy thing, especially when you have to write it in a language that's not yours. But I have to say that the community support has been amazing. Even <a href="http://daringfireball.net/linked/2010/05/03/macruby-aimonetti">John Gruber sent a fireball my way</a>. And since the announcement was made, I have received a lot of <a href="http://macruby.labs.oreilly.com/comments/feed?id=book">comments</a>, tweets, emails etc... It is very encouraging and it gives me the motivation needed to work on the book after a long work day.</p>
+]]></content>
+  </entry>
+  
+</feed>

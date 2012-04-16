@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rails | Matt Aimonetti]]></title>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/rails/atom.xml" rel="self"/>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
+  <updated>2012-04-17T01:22:39+02:00</updated>
+  <id>http://mattetti.github.com/Matt-Aimonetti/</id>
+  <author>
+    <name><![CDATA[Matt Aimonetti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Learning from Rails' failures]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/29/learning-from-rails-failures/"/>
+    <updated>2012-02-29T07:48:08+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/29/learning-from-rails-failures</id>
+    <content type="html"><![CDATA[<p>Ruby on Rails undisputedly changed the way web frameworks are designed. Rails became a reference when it comes to leveraging conventions, easy baked in feature set and a rich ecosystem. However, I think that Rails did and still does a lot of things pretty poorly.  By writing this post, I'm not trying to denigrate Rails, there are many other people out there already doing that. My hope is that by listing what I think didn't and still doesn't go well, we can learn from our mistakes and improve existing solutions or create better new ones.</p>
+
+<p><a href="http://merbist.com/2012/02/29/learning-from-rails-failures/train_fail/"><img src="http://merbist.com/wp-content/uploads/2012/02/train_fail-300x188.jpg" alt="" /></a></p>
+
+<h2>Migration/upgrades</h2>
+
+<p>Migrating a Rails App from a version to the other is very much like playing the lottery, you are almost sure you will lose. To be more correct, you know things will break, you just don't know what, when and how. The Rails team seems to think that everybody is always running on the cutting edge version and don't consider people who prefer to stay a few version behind for stability reasons. What's worse is that plugins/gems might or might not compatible with the version you are updating to, but you will only know that by trying yourself and letting others try and report potential issues.</p>
+
+<p>This is for me, by far, the biggest issue with Rails and something that should have been fixed a long time ago. If you're using the WordPress blog engine, you know how easy and safe it is to upgrade the engine or the plugins. Granted WordPress isn't a web dev framework, but it gives you an idea of what kind of experience we should be striving for.</p>
+
+<h2>Stability vs playground zone</h2>
+
+<p>New features are cool and they help make the platform more appealing to new comers. They also help shape the future of a framework. But from my perspective, that shouldn't come to the cost of stability. Rails 3's new asset pipeline is a good example of a half-baked solution shoved in a release at the last minute and creating a nightmare for a lot of us trying to upgrade. I know, I know, you can turn off the asset pipeline and it got better since it was first released. But shouldn't that be the other way around? Shouldn't fun new ideas risking the stability of an app or making migration harder, be off by default and turned on only by people wanting to experiment? When your framework is young, it's normal that you move fast and sometimes break, but once it matures, these things shouldn't happen.</p>
+
+<h2>Public/private/plugin APIs</h2>
+
+<p>This is more of a recommendation than anything else. When you write a framework in a very dynamic language like Ruby, people will "monkey patch" your code to inject features. Sometimes it is due to software design challenges, sometimes it's because people don't know better. However,  by not explicitly specifying what APIs are private (they can change at anytime, don't touch), what APIs are public (stable, will be slowly deprecated when they need to be changed) and which ones are for plugin devs only (APIs meant for instrumentation, extension etc..), you are making migration to newer versions much harder. You see, if you have a small, clean public API, then it's easy to see what could break, warn developers and avoid migration nightmares. However, you need to start doing that early on in your project, otherwise you will end up like Rails where all code can potentially change anytime.</p>
+
+<h2>Rails/Merb merge was a mistake</h2>
+
+<p>This is my personal opinion and well, feel free to disagree, nobody will ever be able to know to for sure. Without explaining what happened behind closed doors and the various personal motivations, looking at the end result, I agree with the group of people thinking that the merge didn't turn up to be a good thing. For me, Rails 3 isn't significantly better than Rails 2 and it took forever to be released. You still can't really run a mini Rails stack like promised. I did hear that Strobe (company who was hiring Carl Lerche, Yehuda Katz and contracted Jose Valim) used to have an ActionPack based, mini stack but it was never released and apparently only Rails core members really knew what was going on there. Performance in vanilla Rails 3 are only now getting close to what you had with Rails 2 (and therefore far from the perf you were getting with Merb). Thread-safety is still OFF by default meaning that by default your app uses a giant lock only allowing a process to handle 1 request at a time. For me, the flexibility and performance focus of Merb were mainly lost in the merge with Rails. (Granted, some important things such as ActiveModel, cleaner internals and others have made their way into Rails 3)</p>
+
+<p>But what's worse than everything listed so far is that the lack of competition and the internal rewrites made Rails lose its headstart.  Rails is very much HTML/view focused, its primarily strength is to make server side views trivial and it does an amazing job at that. But let's be honest, that's not the future for web dev. The future is more and more logic pushed to run on the client side (in JS) and the server side being used as an API serving data for the view layer. I'm sorry but adding support for CoffeeScript doesn't really do much to making Rails evolve ahead of what it currently is. Don't get me wrong, I'm a big fan of CoffeeScript, that said I still find that Rails is far from being optimized to developer web APIs in Rails. You can certainly do it, but you are basically using a tool that wasn't designed to write APIs and you pay the overhead for that. If there is one thing I wish Rails will get better at is to make writing pure web APIs better (thankfully there is Sinatra). But at the end of the day, I think that two projects with different philosophies and different approaches are really hard to merge, especially in the open source world. I wouldn't go as far as saying like others that Rails lost its sexiness to node.js because of the wasted time, but I do think that things would have been better for all if that didn't happen. However, I also have to admit that I'm not sure how much of a big deal that is. I prefer to leave the past behind, learn from my own mistake and move on.</p>
+
+<h2>Technical debts</h2>
+
+<p>Here I'd like to stop to give a huge props to Aaron "<a href="http://twitter.com/tenderlove">@tenderlove</a>" Patterson, the man who's actively working to reduce the <a href="http://en.wikipedia.org/wiki/Technical_debt">technical debts</a> in the Rails code base. This is a really hard job and definitely not a very glamorous one. He's been working on various parts of Rails including its router and its ORM (ActiveRecord). Technical debts are unfortunately normal in most project, but sometimes they are overwhelming to the point that nobody dares touching the code base to clean it up. This is a hard problem, especially when projects move fast like Rails did. But looking back, I think that you want to start tackling technical debts on the side as you move on so you avoid getting to the point that you need a hero to come up and clean the piled errors made in the past. But don't pause your entire project to clean things up otherwise you will lose market, momentum and excitement. I feel that this is also very much true for any legacy project you might pick up as a developer.</p>
+
+<h2>Keep the cost of entry level low</h2>
+
+<p>Getting started with Rails used to be easier. This can obviously argued since it's very subjective, but from my perspective I think we forgot where we come from and we involuntary expect new comers to come with unrealistic knowledge. Sure, Rails does much more than it used to do, but it's also much harder to get started. I'm not going to argue how harder  it is now or why we got there. Let's just keep in mind that it is a critical thing that should always be re-evaluated. Sure, it's harder when you have an open source project, but it's also up to the leadership to show that they care and to encourage and mentor volunteers to  focus on this important part of a project.</p>
+
+<h2>Documentation</h2>
+
+<p>Rails documentation isn't bad, but it's far from being great. Documentation certainly isn't one of the Ruby's community strength, especially compared with the Python community, but what saddens me is to see the state of <a href="http://guides.rubyonrails.org/">the official documentation</a> which, should, in theory be the reference. Note that the Rails guides are usually well written and provide value, but they too often seem too light and not useful when you try to do something not totally basic (for instance use an ActiveModel compliant object). That's probably why most people don't refer to them or don't spend too much time there. I'm not trying to blame anyone there. I think that the people who contributed theses guides did an amazing job, but if you want to build a strong and easy to access community, great documentation is key. Look at the <a href="https://docs.djangoproject.com/en/1.3/">Django</a> documentation as a good example. That said, I also need to acknowledge the amazing job done by many community members such as <a href="http://railscasts.com/">Ryan Bates</a> and <a href="http://ruby.railstutorial.org/">Michael Hartl</a> consistently providing high value external documentation via the <a href="http://railscasts.com/">railscasts</a> and the intro to <a href="http://ruby.railstutorial.org/">Rails tutorial</a> available for free.</p>
+
+<p>In conclusion, I think that there is a lot to learn from Rails, lots of great things as well as lots of things you would want to avoid. We can certainly argue on Hacker News or via comments about whether or not I'm right about Rails failures, my point will still be that the mentioned issues should be avoided in any projects, Rails here is just an example. Many of these issues are currently being addressed by the Rails team but wouldn't it be great if new projects learn from older ones and avoid making the same mistakes? So what other mistakes do you think I forgot to mention and that one should be very careful of avoiding?</p>
+
+<h3>Updates:</h3>
+
+<ol>
+<li><p>Rails 4 had an API centric app generator but it <a href="https://github.com/rails/rails/commit/6db930cb5bbff9ad824590b5844e04768de240b1">was quickly reverted</a> and will live as gem until it's mature enough.</p></li>
+<li><p>Rails 4 improved the ActiveModel API to be simpler to get started with. See <a href="http://blog.plataformatec.com.br/2012/03/barebone-models-to-use-with-actionpack-in-rails-4-0/">this blog</a> post for more info.</p></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Quick dive into Ruby ORM object initialization]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization/"/>
+    <updated>2012-02-23T09:46:49+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization</id>
+    <content type="html"><![CDATA[<p>Yesterday I did some quick digging into how ORM objects are initialized and the performance cost associated to that. In other words, I wanted to see what's going on when you initialize an ActiveRecord object.</p>
+
+<p>Before I show you the benchmark numbers and you jump to conclusions, it's important to realize that in the grand scheme of things, the performance cost we are talking is small enough that it is certainly not the main reason why your application is slow. Spoiler alert: ActiveRecord is slow but the cost of initialization isn't by far the worse part of ActiveRecord. Also, even though this article doesn't make activeRecord look good, and I'm not trying to diss it. It's a decent ORM that does a great job in most cases.</p>
+
+<p>Let's get started by the benchmarks number to give us an idea of the damage (using Ruby 1.9.3 p125):</p>
+
+<pre><code>                                                             | Class | Hash  | AR 3.2.1 | AR no protection | Datamapper | Sequel |
+--------------------------------------------------------------------------------------------------------------------------------------
+.new() x100000                                               | 0.037 | 0.049 | 1.557    | 1.536            | 0.027      | 0.209  |
+.new({:id=&gt;1, :title=&gt;"Foo", :text=&gt;"Bar"}) x100000          | 0.327 | 0.038 | 6.784    | 5.972            | 4.226      | 1.986  |
+</code></pre>
+
+<p>You can see that I am comparing the allocation of a Class instance, a Hash and some ORM models. The benchmark suite tests the allocation of an empty object and one with passed attributes. The benchmark in question is available <a href="https://github.com/mattetti/benchmarks/blob/master/init_objects.rb">here</a>.</p>
+
+<p>As you can see there seems to be a huge performance difference between allocating a basic class and an ORM class. Instantiating an ActiveRecord class is 20x slower than instantiating a normal class, while ActiveRecord offers some extra features, why is it so much slower, especially at initialization time?</p>
+
+<p>The best way to figure it out is to profile the initialization. For that, I used <a href="https://github.com/tmm1/perftools.rb">perftools.rb</a> and I generated a graph of the call stack.</p>
+
+<p>Here is what Ruby does (and spends its time) when you initialize a new Model instance (click to download the PDF version):</p>
+
+<p><a href="http://github.com/mattetti/benchmarks/blob/master/ar_init_profile.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantation-by-Matt-Aimonetti.jpg" alt="Profiler diagram of AR model instantiation by Matt Aimonetti" /></a></p>
+
+<p>This is quite a scary graph but it shows nicely the features you are getting and their cost associated. For instance, the option of having the before and after initialization callback cost you 14% of your CPU time per instantiation, even though you probably almost never use these callbacks. I'm reading that by interpreting the node called ActiveSupport::Callback#run_callbacks, 3rd level from the top. So 14.1% of the CPU time is spent trying to run callbacks. As a quick note, note that 90.1% of the CPU time is spent initializing objects, the rest is spent in the loop and in the garbage collection (because the profiler runs many loops). You can then follow the code and see how the code works, creating a dynamic class callback method on the fly (the one with the long name) and then recreating the name of this callback to call it each time the object is allocated. It sounds like that's a good place for some micro optimizations which could yield up to 14% performance increase in some cases.</p>
+
+<p>Another major part of the CPU time is spent in ActiveModel's sanitization. This is the piece of code that allows you to block some model attributes to be mass assigned. This is useful when you don't want to sanitize your incoming params but want to create or update a model instance by using all the passed user params. To avoid malicious users to modify some specific params that might be in your model but not in your form, you can protect these attributes. A good example would be an admin flag on a User object. That said, if you manually initialize an instance, you don't need this extra protection, that's why in the benchmark above, I tested and without the protection. As you can see, it makes quite a big difference. The profiler graph of the same initialization without the mass assignment protection logically ends up looking quite different:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true">
+</a><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantiation-without-mass-assignment-by-Matt-Aimonetti.jpg" alt="Matt Aimonetti shows the stack trace generated by the instantiation of an Active Record model" /></a></p>
+
+<p><strong>Update:</strong> My colleague <a href="https://twitter.com/#!/glv">Glenn Vanderburg</a> pointed out that some people might assuming that the shown code path is called for each record loaded from the database. This isn't correct, the graph represents instances allocated by calling #new. See the addition at the bottom of the post for more details about what's going on when you fetch data from the DB.</p>
+
+<p>I then decided to look at the graphs for the two other popular Ruby ORMs:</p>
+
+<p><a href="http://datamapper.org/">Datamapper</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/dm_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-txs4wa7b5rdpg45aj6354xg1wt.jpg" alt="" /></a></p>
+
+<p>and <a href="http://sequel.rubyforge.org/">Sequel</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/sequel_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-p2jx6ypk35ucsgtx7p1tcabpes.jpg" alt="" /></a></p>
+
+<p>While I didn't give you much insight in ORM code, I hope that this post will motivate you to sometimes take a look under the cover and profile your code to see what's going on and why it might be slow. <strong>Never assume, always measure</strong>. Tools such as perftools are a great way to get a visual feedback and get a better understanding of how the Ruby interpreter is handling your code.</p>
+
+<h2>UPDATE:</h2>
+
+<p>I heard you liked graphs so I added some more, here is what's going on when you do Model.first:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_first_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-f23s8xctghi8mj6ax3cdw9aq25.jpg" alt="" /></a></p>
+
+<p>Model.all</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_all_profile.pdf?raw=true"><img src="https://img.skitch.com/20120224-q29q4n7bj3i96erk1enxdqxb5e.jpg" alt="" /></a></p>
+
+<p>And finally this is the code graph for a call to Model.instantiate which is called after a record was retrieved from the database to convert into an Object. (You can see the #instantiate call referenced in the graph above).</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_instantiate_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-8scmun9n1c9ufdnxa8rq2961bq.jpg" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying a Rails 3.1 app - gotchas]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/08/30/deploying-a-rails-3-1-app-gotchas/"/>
+    <updated>2011-08-30T17:20:34+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/08/30/deploying-a-rails-3-1-app-gotchas</id>
+    <content type="html"><![CDATA[<p>Recently I had to build a new app as part of my research &amp; development job at <a href="http://livingsocial.com">LivingSocial</a>. My goal was to get the app up and running in just a few weeks, solid application architecture and graphic design included.
+When you need to build an app quickly and you want it to have some solid foundations, Rails is quite useful.
+I used Rails 3.1RCx so if we would to keep my app and push it to production, the engineering team wouldn't have to update it and the transition should be seamless. I also quite like <a href="http://jashkenas.github.com/coffee-script/">CoffeeScript</a> and the app being quite heavy on JavaScript, the choice was easy. Furthermore, my coworker <a href="http://codefluency.com/">Bruce Williams</a> is a fan of <a href="http://sass-lang.com/">SCSS</a> and he's writing a <a href="http://pragprog.com/">PragProg</a> book called "The Rails View" with other LivingSocialist: <a href="http://www.boboroshi.com/">John Athayde</a>. So you got the point, I'm using Rails3.1, but this post is about the challenges I faced when it was time to deploy and the solutions I found.</p>
+
+<p>I'll skip the intro to Rails 3.1 and how to use the new asset pipeline, refer to the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails guide</a> or one of the mainly posts referenced in t<a href="http://jasonrudolph.com/blog/2011/06/06/helpful-resources-for-upgrading-to-rails-3-1/">his post</a> (if I had properly read the <a href="http://guides.rubyonrails.org/asset_pipeline.html">guide</a>, it would have saved me some valuable time, trust me, read it carefuly).</p>
+
+<p>At that point last night, I had my app working great locally, Bruce created some awesome scss code using mixins and nested rules, the HTML was clean and working great, my <a href="http://jashkenas.github.com/coffee-script/">CoffeeScript</a> was brewing nicely, all was great until I tried to deploy to our QA environment.</p>
+
+<h3>JavaScript runtime dependency</h3>
+
+<p>The first thing you will notice is that you need the proper JavaScript runtime so the asset pipeline works properly. Not a big deal, you'll find a lot of documentation about that. The problem is that you need to update your production environment or use depend on gem that will compile the required runtime (sounds dirty to me). So if you are deploying to many machines and you are using an image solution (EC2 AMI or other), you will need to update your image or spin new instances via updated chef/puppet recipes. In this case, the awesome team at LivingSocial had an image ready for me, so that wasn't a big deal, but still, you need to take that in consideration as you are planning to update.</p>
+
+<p>So the asset pipeline optimizes your asset management by processing/compiling asset files for you and optimizing their delivery. Instead of serving static files directly via public/images or public/javascripts you know serve them via the asset pipeline which will take care of compiling your CoffeeScript, grouping and minifying your JS and preprocessing all sorts of format. It also optimizes the caching process by giving a unique filename to each file based on the file metadata and gziping files. This is great, but you really, really, really don't want to have your apps take care of that in production. Why wasting precious resources to serve assets when they can be prepared ahead of time. (by making Rails serve static assets, you are seriously reducing the throughput of  your app, please think of the children (or the dolphins/trees if you don't like children))</p>
+
+<h3>Capistrano</h3>
+
+<p>Rails obviously has a preprocessor available as a rake task and you should update your deployment recipe to use that new feature. Here is my Capistrano code:</p>
+
+<pre><code>after 'deploy:update_code', 'deploy:compile_assets'
+namespace :deploy do
+  task :compile_assets do
+    run "cd #{release_path}; RAILS_ENV=production rake assets:precompile"
+  end
+end
+</code></pre>
+
+<p>Well, my real code doesn't hardcode the RAILS_ENV constant value, it's in fact set in each env file, but I simplified it since most people only use 1 env outside of dev &amp; test.</p>
+
+<p>What that will do is compile all the files and dump them in public/assets/. But the file I had called bubble.png now becomes bubble-27543c671a3ab45141ee0d3216085009.png which means that my app is totally broken because images use in Bruce SCSS don't load, my js files don't load and the app is totally broken. Now this is least fun part, that I wish I had known before. This is where you go back and change your code so it uses magic to get the right file names.</p>
+
+<h3>Images</h3>
+
+<p>Fixing images was actually quite simple, in all my views, I just had to make sure I was using the image_tag helper everywhere.</p>
+
+<h3>CSS</h3>
+
+<p>SCSS files were a bit more tricky, I had to use the new scss preprocessor helpers you will find in the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails guide</a> (image_path and image_url). I first looked into using erb, but turned out it wasn't needed and the end result is much cleaner.</p>
+
+<h3>Javascript/CoffeeScript</h3>
+
+<p>For the CoffeeScript files, I was referring to image assets in the code and of course all the links were broken. So I had to use ERB in my coffee which looked funky but it worked.</p>
+
+<p>But to get that to work, you need to rename your coffee script and append erb at the end. For instance my feature.js.coffee script had to be renamed feature.js.coffee.erb. That made me cry a little inside, but oh well, at least its not a XML config file. Maybe soon we will start seeing code in filenames or filenames called my_feature.js.compressed.minified.coffee.erb.from_rails.mattetti.org
+Also, be careful about the order of the file extensions, otherwise it won't work. I thought I was done, ready to deploy my apps and this time the assets will show up properly. Turns out I was wrong :(</p>
+
+<h3>Rails asset precompilation env specific configuration.</h3>
+
+<p>My css looked good, the precompiling task had run fine but I was missing some js files. I scratched my head as I could only see some of my js files. I then realized that all my JS files were there but some of my CoffeeScript files were missing. The answer was given to me by Bruce who asked me if I had updated my "config.assets.precompile" setting. Sometimes I feel that Rails is trying to compete with Struts and here I was really surprised that by default Rails, in production mode only precompiles all static JS and application.js files, but none of the other dynamic js files. Now it does precompile all the scss files, but for a reason I just don't understand, it's not the case for the JS files. So, you have to go edit production.rb in the config/environments folder and add the other js files you would like Rails to precompile for you.</p>
+
+<p>After making all these changes, I was able to redeploy my app and everything was working again. (you might want to tweak your apache/nginx config as explained in the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails guide</a>)</p>
+
+<h3>Conclusion</h3>
+
+<p>Don't be fooled like me and expect that because you have an app running locally, deployment will work right away. Make sure to read about the new features and what's needed. Overall, I think that the asset pipeline is a nice addon to Rails and if you don't feel like using it, just can put/leave all your files in the public folder and everything will work just like before. I do have to say that I was surprised to see that even in a brand new Rails 3.1 project, Rails isn't running in threaded mode by default. But that's a different (old) story and I guess people still get more excited about asset management than framework raw performance ;)</p>
+]]></content>
+  </entry>
+  
+</feed>

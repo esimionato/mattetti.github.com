@@ -1,0 +1,486 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Matt Aimonetti</title>
+    <meta name="author" content="Matt Aimonetti">
+
+    
+    <meta name="description" content="Merb Progress As they say: fail early, fail often. Well, I&#8217;ve been failing to blog recently, but as always I have some good excuses ;) Yehuda &hellip;">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+
+    <link href="/Matt-Aimonetti/atom.xml" rel="alternate" title="Matt Aimonetti" type="application/atom+xml">
+    <link rel="canonical" href="http://mattetti.github.com/Matt-Aimonetti">
+    <link href="/Matt-Aimonetti/favicon.png" rel="shortcut icon">
+    <link href="/Matt-Aimonetti/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30927742-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+
+<body>
+	<header><div id='meta' class='inner'>
+  <div id="matt-aimonetti" itemscope itemtype="http://data-vocabulary.org/Person">
+    <img class="photo left" src="/Matt-Aimonetti/images/matt_aimonetti.jpg" />
+    <h1 class="left"><a itemprop="name" href="/Matt-Aimonetti/">Matt Aimonetti</a></h1>
+    <br>
+    <ul class='left'>
+      <li><a href='http://www.linkedin.com/in/mattaimonetti'>Software Architecture</a> at <span itemprop="affiliation">LivingSocial</span></li>
+      <li><a href='http://www.oreillynet.com/pub/au/4385'>Author</a> at <span itemprop="affiliation">O'Reilly</span></li>
+      <li>Open-source <a href="/articles/archives">evangelist</a></li>
+      <li><a href="https://github.com/mattetti">Web engineer</a></li>
+    </ul>
+  <nav class="menu left"><ul class="main">
+	<li><a href="/Matt-Aimonetti/">Articles</a></li>
+	<li><a href="/Matt-Aimonetti/posts/archives">Archives</a></li>
+</ul>
+</nav>
+  <div class="right">
+    <form class="search right" action="http://google.com/search" method="get">
+      <input class="left" type="text" name="q" results="0">
+      <input type="hidden" name="q" value="site:mattetti.github.com/Matt-Aimonetti">
+    </form>
+    <div class="social right">
+      
+      
+      <a class="google" rel='me' href="https://plus.google.com/101114877505962271216?rel=author" title="Google+">Google+</a>
+      
+      
+      <a class="twitter" rel='me' href="http://twitter.com/merbist" title="Twitter">Twitter</a>
+      
+      
+      <a class="github" rel='me' href="https://github.com/mattetti" title="GitHub">GitHub</a>
+      
+      
+      
+      <a class="linkedin" rel='me' href="http://www.linkedin.com/in/mattaimonetti" title="Linkedin">Linkedin</a>
+      
+      
+      <a class="rss" rel='me' href="/Matt-Aimonetti/atom.xml" title="RSS">RSS</a>
+      
+    </div>
+  </div>
+</div>
+
+</header>
+	
+<!--
+<div id="banner" class="inner">
+	<div class="container">
+		<ul class="feed"></ul>
+	</div>
+	<small><a href="http://twitter.com/merbist">merbist</a> @ <a href="http://twitter.com">Twitter</a></small>
+	<div class="loading">Loading...</div>
+</div>
+<script src="/Matt-Aimonetti/javascripts/twitter.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('#banner').getTwitterFeed('merbist', 0, false);
+	})(jQuery);
+</script>
+-->
+
+
+	<div id="content" class="inner">
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/02/06/merb-progress/">Merb Progress</a></h1>
+    <div class="entry">
+        <p>As they say: fail early, fail often. Well, I&#8217;ve been failing to blog recently, but as always I have some good excuses ;)</p>
+
+<ul>
+<li><p><a href="http://yehudakatz.com/">Yehuda</a> has been blogging a lot about the work done on the merge.</p></li>
+<li><p>I have been busy working on probably the <a href="http://github.com/mattetti/couchrest">awesomest CouchDB Ruby DSL/ORM</a>.</p></li>
+<li><p>I have been working with the <a href="http://weblog.rubyonrails.com/activism">Rails Activists</a> on the <a href="http://newwiki.rubyonrails.org">new wiki</a> and many other projects.</p></li>
+<li><p>My sister is visiting from France :)  (most of my free time is not spent in front of a computer anymore :p)</p></li>
+<li><p>I&#8217;ve been playing with MacRuby (see the end of the post)</p></li>
+<li><p>Ohh and spent some time maintaining Merb and preparing 1.0.9</p></li>
+</ul>
+
+
+<h2>Merb 1.0.9</h2>
+
+<p>Merb 1.0.8.1 has some issues with the merb-cache settings set in init.rb being called twice when you use some Rake tasks. (rake db:automigrate for instance).The problem is due to the fact that the rake tasks load the dependencies twice:</p>
+
+<ul>
+<li><p>Merb rake file loads all of your app dependencies and their rake tasks. (for instance rake db:automigrate is a rake task coming from merb_datamapper)</p></li>
+<li><p>The task you are invoking might start merb itself to load the models etc.. and starting Merb reloads the dependencies.</p></li>
+</ul>
+
+
+<p>Dependencies have the option to have a require block. A require block is a Proc that gets called when the dependency is being required. In the case of 1.8.1, we added a default block to set merb-cache. The problem was that the block was being set and called twice and merb-cache was complaining that the default cache was already setup.</p>
+
+<p>To fix this issue we worked on a band-aid type solution (read: kinda evil but ok). Even if you start Merb multiple times, the init.rb file will no only load once and the dependency require blocks will only be called once. However, in the case of merb-cache, the setup block is being called everytime you go through the bootloader. That&#8217;s why we added a verification on the block itself. In the long term, we are going to fix things nicely and optimize the way merb-cache loads.</p>
+
+<p>We also addressed some other issues. Some people have been pointed out issues with some merb-helpers and patches were provided by the community (thanks a lot).</p>
+
+<p>Talking about patches, we also accepted a patch fixing a small problem with merb-auth and some open-id servers.</p>
+
+<p>Ruby 1.9.1: We started going through all the different places were things are not compatible yet, most of the work that needs to be done right away is focused on the router. Carl has been working on that and you can check his branch to see how we are doing. During the next week we will try to get things ironed out, we still don&#8217;t know how we are going to deal with the fact that action-args uses parsetree which is not 1.9.1 compatible.</p>
+
+<p>The upcoming version also gets a brand new feature: memory monitoring by the merb master process. The master process checks that the workers don&#8217;t use too much memory ( you can set what you consider beign too much memory using Merb::Config[:max_memory]) and if one of the workers reaches the limit, it does a kill -1. It then waits a configured amount of seconds (defaults to 5) then kill using -9.</p>
+
+<p>Finally, we also fixed a bunch of tiny issues.</p>
+
+<p>1.0.9 should be released in the next few days.</p>
+
+<hr />
+
+<h2>MacRuby</h2>
+
+<p>Finally, because for those interested in MacRuby here are my slides from last night&#8217;s SDRuby meetup:</p>
+
+<p><a href="http://www.slideshare.net/mattetti/macruby-when-objectivec-and-ruby-meet?type=presentation">MacRuby - When objective-c and Ruby meet</a></p>
+
+<p>View more <a href="http://www.slideshare.net/">presentations</a> from <a href="http://www.slideshare.net/mattetti">Matt Aimonetti</a>.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-06T14:09:27+01:00" pubdate data-updated="true">Feb 6<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/merb/'>merb</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/01/13/recent-news-jan-13-2009/">Recent News Jan 13 2009</a></h1>
+    <div class="entry">
+        <p>Lately, I have been really busy with my <a href="http://ma-agile.com">business</a>, an <a href="http://merbclass.com">upcoming training</a> and some non rails-merb related experimentations. (I&#8217;m learning objective-c and playing with <a href="http://www.macruby.org/trac/wiki/MacRuby">macruby</a>)</p>
+
+<p>However, here are some of the latest news:</p>
+
+<ul>
+<li><p>Merb 1.0.8 should be released soon with some bug fixes and some improvements</p></li>
+<li><p>The Merb book got 2 new sections, Sequel and Active Record. I&#8217;ll be spending quite a lot of time on the book in the next weeks.</p></li>
+<li><p>Ted Han is working on reorganizing the <a href="http://wiki.merbivore.com">Merb wiki</a></p></li>
+<li><p>We started a new mailing list for people wanting to help with the <a href="http://groups.google.com/group/rubyonrails-wiki">Rails wiki</a></p></li>
+<li><p>We also started a mailing list for people wanting to help with the <a href="http://groups.google.com/group/rails-activism">activism effort</a></p></li>
+</ul>
+
+
+<p>For those in the Phoenix area, next week, <a href="http://yehuda">Yehuda</a> and I will be at <a href="http://integrumtech.com/">integrum</a>/<a href="http://gangplankhq.com/">gangplank</a>&#8217;s for the <a href="http://phxrails.com/">Phoenix Rails User Group</a>.</p>
+
+<p>We are looking to meeting you all.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-01-13T20:20:46+01:00" pubdate data-updated="true">Jan 13<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/01/06/meet-the-merbists-hampton-catlin/">Meet the Merbists: Hampton Catlin</a></h1>
+    <div class="entry">
+        <p><img src="http://farm1.static.flickr.com/156/379744976_8f241811fe_m.jpg" alt="Matt Aimonetti interviewing Hampton Catlin" /></p>
+
+<p>Meet today&#8217;s merbist: <a href="http://hamptoncatlin.com/">Hampton Catlin</a></p>
+
+<p>I&#8217;m personally looking forward to seeing Hampton&#8217;s work migrated to Rails 3 in a few months.</p>
+
+<p><strong>Matt Aimonetti</strong>: Hi Hampton, could you please introduce yourself and tell us what you do for a living.</p>
+
+<p><strong>Hampton Catlin: </strong>I&#8217;m Hampton Catlin. I&#8217;m &#8220;The Haml Guy&#8221; as I&#8217;m apparently termed all the time when introduced. I&#8217;m an early Rails hacker who has done a lot more than Haml, but whatever. These days, I&#8217;m doing a ton of iPhone development and am currently heading Wikimedia&#8217;s efforts for a new mobile platform&#8230; based on Merb!</p>
+
+<p><strong>Matt Aimonetti</strong>: How did you get started with Ruby, what&#8217;s your background?</p>
+
+<p><strong>Hampton Catlin</strong>: Well, everyone is welcome to laugh. But Slashdot introduced me to Ruby. I got into it about two months before Rails because the hotness (it was an obscure project at the time) and I grabbed a copy of the Pickaxe and never looked back. Prior to that I was working a crappy job getting people coffee at a bank. And then prior to that I was doing research for Nasa at my university with Java beuwolf clusters. It sounds fancier than it was.</p>
+
+<p><strong>Matt Aimonetti:</strong> You chose to learn and use Merb, could you please let us know why and how that happened?</p>
+
+<p><strong>Hampton Catlin: </strong>I had known of Ezra for a while and Yehuda. And so when I heard about the project, I was very interested. At the time I was looking forward to using a &#8220;Rails Light&#8221;. Of course, we know Merb is much more than that, but that was the original attraction.</p>
+
+<p>Also, at some point I got really upset by the use of global variables in both of the frameworks, so I did some major patching to Merb to change over to module based constants. Aka, Merb.root instead of MERB_ROOT. I was ranting about it enough that I decided to do something about it. Also, I did some patches that messed up Merb with some weird documentation stuff. Sorry, Ezra.</p>
+
+<p><strong>Matt Aimonetti</strong>: Do you have some Merb projects available online we can look at? what was your experience so far?</p>
+
+<p><strong>Hampton Catlin</strong>: My most successful iPhone app (which was recently purchased by Wikimedia) was an app to browse Wikipedia. I chose Merb because I knew that I wanted something a little more bare bones than Rails, and it turned out to be a really good choice. And now, I&#8217;m getting a chance to extend that work into an entire platform for Wikimedia mobile. I am still looking for help with it&#8230;.<a href="http://github.com/hcatlin/wikimedia-mobile/tree/master">http://github.com/hcatlin/wikimedia-mobile/tree/master</a>
+Its not live yet with wikipedia, but that&#8217;s the code that you can help with! :)</p>
+
+<p><strong>Matt Aimonetti</strong> What is your favorite aspect of the Merb framework?</p>
+
+<p><strong>Hampton Catlin: </strong>Its modular design. Its as complex or as simple as you would like it to be. Also, its easy to run Haml, and the more people that use Haml, the harder my nipples get.</p>
+
+<p><strong>Matt Aimonetti</strong> Could you please mention an aspect of Merb you hope to see being improved in the near future?</p>
+
+<p><strong>Hampton Catlin</strong>: Honestly, everyone is wild about gems, but I&#8217;m not particularly. I find gem management a bit cumbersome. I&#8217;m most likely doing something wrong or not doing it the right way. But yeah, I still find it cumbersome. I&#8217;d like to pair the excellent Gem support with better library creation support. I think both are needed. I don&#8217;t want to throw stuff in my /lib folder or randomly in my project. I want some structure and some simplicity. Somewhere between plugins and base libraries. I think this is where Merb <em>could</em> shine.</p>
+
+<p>Also, resource handling. I wrote make_resourceful for Rails and I keep needing to do something similar for Merb. m_r is not very popular because I haven&#8217;t really put much time into spreading the word. Mostly, I just use it. However, there are about 60 other Rails developers in the world that use it extensively. So, its a small, close-knit group of developers using the tool. And, I think something like it could be much more elegantly mixed into Merb. Obviously its a plug-in, but I think its a low hanging fruit. &#8220;current_object&#8221; as a method should ALWAYS be around when its logical.</p>
+
+<p><strong>Matt Aimonetti</strong> Thank you for your time. Anything else you would like to add?</p>
+
+<p><strong>Hampton Catlin</strong>: Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Buy my book. Ok, not really. My book isn&#8217;t very good. But, I just wanted to make a &#8220;The Critic&#8221; reference.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-01-06T12:13:37+01:00" pubdate data-updated="true">Jan 6<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/misc/'>Misc</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2009/01/05/presenting-the-rails-activists/">Presenting the Rails Activists</a></h1>
+    <div class="entry">
+        <p>Today is Monday. I usually don&#8217;t like Mondays.
+Being Monday goes with waking up early, going back to work, and lots of deadlines.</p>
+
+<p>However, today is a special Monday. It&#8217;s the first Monday of the year and I have a <strong>special announcement</strong>!</p>
+
+<p>During the Rails/Merb merge announcement, it was mentioned that I will be joining the soon to be created <strong>&#8220;Evangelism team&#8221;</strong>.</p>
+
+<p>A few people asked me what being a <strong>&#8220;Rails Evangelist&#8221;</strong> means. To reassure my parents and close friends, no, <em>I didn&#8217;t join a new cult worshiping locomotives</em>. However, I still think that public transportation should be improved, especially in this time of crisis (but that&#8217;s a different topic).</p>
+
+<p>A technical evangelist, is usually someone who knows and uses a specific technology and thinks others should look into it. This is something I&#8217;ve been doing for Merb while being part of the core team. I initiated and helped organizing MerbCamp, re-did the wiki, started working on the merb-book, spent time looking for and listening to users, spent time with third party developers and people pushing Merb to a new level (YellowPages, Wikimedia and many others).</p>
+
+<p>This interaction with the end users and the third party developers is something the entire Merb team valued a great deal and I always felt it was something the community really appreciated.</p>
+
+<p>As part of the merge, it was agreed that we would push things further and have a team within the Rails team to take care of &#8220;communication&#8221;. Rails is a bigger project than Merb and communication between the dev team and the users isn&#8217;t always something easy to do.</p>
+
+<p>That&#8217;s why we have formed a separate team that will help communicate and support the community better. We now even have <a href="http://rubyonrails.org/activists">an official page on the Rails website</a> itself :)</p>
+
+<h2>The Rails Activists</h2>
+
+<p><a href="http://merbist.com/wp-content/uploads/2009/01/ateam.jpg"><img src="http://merbist.com/wp-content/uploads/2009/01/ateam-300x225.jpg" alt="" /></a>The A-Team <a href="http://weblog.rubyonrails.org/2009/1/5/announcing-the-rails-activists">just got announced on the Rails blog</a>.</p>
+
+<p>Instead of being called &#8220;evangelists&#8221;, we are going to be called &#8220;activists&#8221;. I think part of the argument was that the E-Team doesn&#8217;t sound as good as the A-Team.</p>
+
+<p>We started with team of 4. You might not know them yet but they all are brilliant people and I&#8217;m really glad to be working with them.</p>
+
+<p><img src="http://weblog.rubyonrails.com/assets/2009/1/4/gregg_pollack.png" alt="" /><strong>Gregg Pollack</strong>, from Rails Envy. You might remember Gregg from the Rails vs * commercials or from the Rails Envy podcasts. I&#8217;ve known Gregg for a little while and he&#8217;s someone you can rely on and always full of energy/new ideas.</p>
+
+<p><img src="http://weblog.rubyonrails.com/assets/2009/1/4/ryan_bates.png" alt="" /><strong>
+Ryan Bates</strong>, mainly known for his Railscasts. I only met Ryan once in person, but I&#8217;ve always been impressed by his work (don&#8217;t tell anyone, but I secretly dreamt of having something like Railscasts but for Merb :) )</p>
+
+<p><img src="http://weblog.rubyonrails.com/assets/2009/1/4/mike_gunderloy.png" alt="" /><strong>Mike Gunderloy</strong>. I actually did not know Mike but I have read and enjoyed his <a href="http://afreshcup.com/">blog</a> and have seen his work on the Rails guides. Mike is an experienced writer and developer. He joked the other day saying that he started programming before any member of the Rails team was even born. Mike is a great addition to the team and I&#8217;m looking forward to learning from his experience.</p>
+
+<p>Gregg and Ryan also covered the event, you might want to check their blog posts (<a href="http://www.railsenvy.com/2009/1/5/the-rails-activist-team">Gregg&#8217;s</a> and <a href="http://afreshcup.com/2009/01/05/announcing-the-rails-activists/">Mike&#8217;s</a>)</p>
+
+<h2>So what are we going to do?</h2>
+
+<p>Pretty simple. We&#8217;ve boiled it down to 2 sentences:</p>
+
+<blockquote><p>The mission of the Rails Activists is to empower and support the worldwide network of Ruby on Rails users. We do this by publicizing Rails, making adoption easier, and enhancing developer support.</p></blockquote>
+
+<p>if you prefer a few more details, here are some of the tasks we are going to work on:</p>
+
+<ul>
+<li><p>Public Relations with media of all sizes</p></li>
+<li><p>Ombudsman work to ensure good user-to-user support</p></li>
+<li><p>Community Leadership at events and conferences</p></li>
+<li><p>Media Organization to help create good promotional opportunities</p></li>
+<li><p>Website maintenance</p></li>
+<li><p>Documentation efforts</p></li>
+<li><p>Developer support</p></li>
+</ul>
+
+
+<h2>Do we need help?</h2>
+
+<p><strong>Absolutely!</strong> The idea is not that we are going to do all the work. The concept of this new team is to help organize the community. We are going to build a Rails Network, a network of people involved in local Rails &#8220;evangelism&#8221;/activism, people contributing and/or translating documentation, third part developers etc&#8230;</p>
+
+<p>First thing would be to <a href="http://groups.google.com/group/rails-activism">join the mailing list</a> and share your suggestions, comments, concerns, etc., with us.</p>
+
+<p>Secondly, we have already set up some forums to hear your feedback.</p>
+
+<p>To start off, we are asking people to let us know what they <a href="http://rails.uservoice.com/">would like to see happening in the Rails3 timeframe</a>.
+We have other forums for more <a href="http://rails.uservoice.com/pages/general_feedback">general feedback</a>, but we need to work with deadlines so we can prioritize accordingly. Using the Rails3 milestone should help us focus on a short/medium term deadline. <a href="http://rails.uservoice.com/pages/rails_future">Long term and not specific suggestions</a> are welcome in the other forums.</p>
+
+<p>Finally, contact us. You can find multiple ways to do so on the <a href="http://rubyonrails.org/activists">activism team web page</a>.</p>
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-01-05T10:15:44+01:00" pubdate data-updated="true">Jan 5<span>th</span>, 2009</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/rails/'>rails</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+
+    <article class="post">
+    <h1 class="title entry-title"><a href="/Matt-Aimonetti/posts/2008/12/29/latest-merb-and-rails-30-news/">Latest Merb and Rails 3.0 News</a></h1>
+    <div class="entry">
+        <p><a href="http://foysavas.com"><img src="http://merbist.com/wp-content/uploads/2008/12/foy-savas-1.png" alt="" /></a></p>
+
+<ul>
+<li><p><a href="http://foysavas.com">Foy Savas</a>, author or the &#8221;<a href="http://my.safaribooksonline.com/9780321601636">merb way</a>&#8221; wrote a very well written <a href="http://www.foysavas.com/blog/2008/12/25/lets-be-clear-the-rails-monoculture-is-over.html">post on &#8220;Rails monoculture&#8221;</a></p></li>
+<li><p><a href="http://on-ruby.blogspot.com/">Pat Eyler</a>, wrote an article asking if <a href="http://on-ruby.blogspot.com/2008/12/rails-and-merb-better-together.html">Rails and Merb would be better together</a>.</p></li>
+<li><p><a href="http://www.geekmade.co.uk/">Ben Aldred</a>, tell people to <a href="http://www.geekmade.co.uk/2008/12/stop-worrying-and-start-loving-rails-3/">stop worrying and start loving Rails 3</a>.</p></li>
+<li><p><a href="http://www.fotonauts.com/">fotonauts.com</a> a Rails and Merb Photo website developed by an ex-apple team, was <a href="http://www.techcrunch.com/2008/12/24/fotonauts-opens-up-a-little-more-skip-the-5000-long-waitlist/">featured in TechCrunch</a>. Fotonauts is the perfect example of an app that will bain a lot from the merge.</p></li>
+<li><p><a href="http://yehudakatz.com">Yehuda</a> has been blogging a lot about every single step and even though most people are enjoying a well deserved break, you can read the <a href="http://yehudakatz.com/2008/12/26/dispatch-from-the-front-lines/">details</a> <a href="http://yehudakatz.com/2008/12/27/status-memorandum/">of</a> the <a href="http://yehudakatz.com/2008/12/29/another-rails-2x3-update/">work</a> started on the merge.</p></li>
+</ul>
+
+
+<p>Basically, the work started, we are getting familiar with the rails code base and are optimizing things slowly but surely with a focus on testing JRuby. The Merb router is being optimized and ported over to Rails 3.0. Rails and Merb developers will be able to stick to their DSL (so we stay backward compatible). Merb bootloader is also being ported over without breaking the backward compatibility. Finally, ActiveSupport is being broken down in more manageable/independant chunks so people will be able to pick only what they want to use. A &#8220;mini&#8221; version is also on the work.</p>
+
+<ul>
+<li><p><a href="http://yehudakatz.com/2008/12/28/merb-107-release-notes/">Merb 1.0.7 got released</a> yesterday with a bunch of bug fixes.</p></li>
+<li><p>merb_sequel 1.0 should be released sometime this week and i&#8217;m planning on adding rails i18n syntax support to merb_babel.</p></li>
+</ul>
+
+
+        
+        
+    </div>
+    <div class="meta">
+        <div class="date updated">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-12-29T13:57:38+01:00" pubdate data-updated="true">Dec 29<span>th</span>, 2008</time></div>
+        <div class="tags">
+
+<div class="cat">
+  
+    <a class='category' href='/Matt-Aimonetti/articles/categories/news/'>News</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/merb/'>merb</a>, <a class='category' href='/Matt-Aimonetti/articles/categories/rails/'>rails</a>
+  
+</div>
+
+</div>
+        
+    </div>
+
+</article>
+
+<nav id="pagenavi">
+    
+        <a href="/Matt-Aimonetti/page/page/12/" class="prev">Prev</a>
+    
+    
+        <a href="/Matt-Aimonetti/page/page/14/" class="next">Next</a>
+    
+    <a href="/Matt-Aimonetti/articles/archives" class="center">Archives</a>
+</nav>
+</div>
+	<footer class="inner"><div id='copyright-notice'>Copyright &copy; 2012 Matt Aimonetti</div>
+</footer>
+	<script src="/Matt-Aimonetti/javascripts/jquery.fancybox.pack.js"></script>
+<script src="/Matt-Aimonetti/javascripts/slash.js"></script>
+
+
+
+
+</body>
+</html>

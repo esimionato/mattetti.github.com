@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: News | Matt Aimonetti]]></title>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/news/atom.xml" rel="self"/>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
+  <updated>2012-04-17T01:22:39+02:00</updated>
+  <id>http://mattetti.github.com/Matt-Aimonetti/</id>
+  <author>
+    <name><![CDATA[Matt Aimonetti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How and why I joined the "suit people"]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/02/02/how-and-why-i-joined-the-suit-people/"/>
+    <updated>2010-02-02T11:19:26+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/02/02/how-and-why-i-joined-the-suit-people</id>
+    <content type="html"><![CDATA[<p>It is now official: I have traded my freedom &amp; home office for a job title, an Aeron chair in a cubicle and a 401K.</p>
+
+<p>I received my new employee package and, in less than a week, I will officially become a full-time employee at <a href="http://en.wikipedia.org/wiki/Sony_Computer_Entertainment_of_America"> SCEA</a> (Sony Computer Entertainment America).</p>
+
+<p>I'm going to work in the PlayStation department, working on PS3, PS2 and PSP game titles developed by <a href="http://www.naughtydog.com/">various</a> <a href="http://en.wikipedia.org/wiki/SCE_Studio_San_Diego">game</a> <a href="http://en.wikipedia.org/wiki/Sony_Computer_Entertainment_Worldwide_Studios">studios</a>.</p>
+
+<p><a href="http://merbist.com/wp-content/uploads/2010/02/sony_playstation_32.jpg"><img src="http://merbist.com/wp-content/uploads/2010/02/sony_playstation_32-300x206.jpg" alt="" /></a></p>
+
+<h3>Why 'o why?</h3>
+
+<p><em>Why leave behind a happy life of indie contracting to join corporate America?</em></p>
+
+<p>For many reasons actually:</p>
+
+<ul>
+<li><strong>A Team</strong></li>
+</ul>
+
+
+<p>Being a consultant I have been working with other independent consultants and existing teams. Nonetheless, I really miss being part of a stable team which grows together and learns from each other as we go through new projects and maintain old ones.</p>
+
+<ul>
+<li><strong>Long term plan</strong></li>
+</ul>
+
+
+<p>As a consultant, I usually start projects or "rescue" existing projects. I work on them for a little while and then move on. It's exciting and rewarding but you don't really pay the consequences of your mistakes. You usually don't have to maintain the code you wrote and you rarely deal with the mistakes <em>you</em> made.</p>
+
+<p>It sounds good, nobody likes to maintain the crappy awesome code they wrote 2 years ago and most developers love working on new stuff. But at the same time, to become a better engineer you need to learn from you mistakes and assuming responsibility for your bad decisions is part of the process.</p>
+
+<p>It might sound weird, but I'm actually excited to work on long term projects and feel some sort of ownership over the projects. Having to support games for many years means that I'd better not mess up the implementation. And if I do, I hope I'll quickly learn from my mistakes.</p>
+
+<ul>
+<li><strong>Avoiding burn out</strong></li>
+</ul>
+
+
+<p>There is no secret: when you are passionate about what you do, you have a hard time stopping and taking a break. I'm a recovering workaholic and it's really hard for me to say no when I'm presented the possibility to work on interesting projects. I love what I do and I keep writing code even after I'm done with client work.</p>
+
+<p>The problem is that this can start me on the slippery slope to isolating myself from friends, family and people who don't share the same passion. I'm really lucky that my wife is a geek and loves hanging out at conferences, looking at code and playing with my buggy prototypes. But still, I spend too much time "playing" with my computer and I just can't manage my free time wisely.</p>
+
+<p>Having a full time position will hopefully help me put boundaries and will hopefully teach me to disconnect from work.</p>
+
+<ul>
+<li><strong>Exciting projects</strong></li>
+</ul>
+
+
+<p>Hey, let's be honest, how many geeks do you know don't want to work in the video game industry? By the way, if you don't have a PS3, they are now at $299 and on top of getting an awesome console you get a blue ray player! (And no, I do not receive any bonuses or commissions for mentioning the console or promoting it in my blog. I had to pay for my own like everyone else.)</p>
+
+<h3>Corporate America? Are you going to write Java now?</h3>
+
+<p><img src="http://farm2.static.flickr.com/1412/1264424156_24f4571b10.jpg" alt="" /></p>
+
+<p>No, I'm mainly going to stick to the language I love: <strong>Ruby</strong>.
+From time to time I will probably use other languages here and there, but that usually makes me love Ruby even more. The reality is that Ruby's power and flexibility seem to be appreciated by SCEA, which makes sense when you have tight deadlines and a lot of new technologies to deal with. Ruby is a perfect match!</p>
+
+<p>As you can guess, I can't go into any detail about how and why Sony uses Ruby, but let me just say that while games are still usually written in C++, they are becoming more and more interactive and need to communicate with game servers where some logic operates. Game players also need to interact with other gamers as well as check their gaming progress online, as well as the progress of the players around them etc... Basically, outside of the game engine and the console SDK, there is a lot of potential for Ruby.</p>
+
+<p>Coming back to Corporate America, I have to say that I've known my future manager for a few years now. He's always been a fervent Ruby advocate and has introduced lots of teams to the happiness of Ruby &amp; Rails development. He's also a great developer who's contributing patches to major projects and has a bunch of cool stuff on github. To give you an idea, my job description mentions Rails, Merb, Sinatra, CouchdB, MongoDB, Redis, AWS. All these Ruby technologies are actually already used in production or are being seriously evaluated.</p>
+
+<p>I'm also really looking forward to join the existing team. I know I'm going to love working with a bunch of awesome developers coming from various backgrounds.</p>
+
+<p>Those who know me, know that I'm not a morning person. And while your typical office job is categorized as '9-5', don't feel too bad for me. I will be joining the video game product department, and morning people are rather rare in these kinds of groups ;)</p>
+
+<h3>Conclusion</h3>
+
+<p>I'm really excited about this opportunity. For me, it is proof again that the Ruby revolution took place and that the Enterprise is evolving. Of course, time will tell if I am right, but I am quite confident.</p>
+
+<p>Also, Sony is always looking for new, talented people who want to push the entertainment world to the next level. Feel free to keep in touch with me if you are interested in joining the fun.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RailsConf 2009]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/05/08/railsconf-2009/"/>
+    <updated>2009-05-08T12:18:18+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/05/08/railsconf-2009</id>
+    <content type="html"><![CDATA[<p>RailsConf 2009 has now finished.  This time last year, no one would have ever guessed that the Merb and Rails teams would join forces and focus on what will hopefully be known as one of the best Web Frameworks.</p>
+
+<p>It was encouraging to see so many people excited about what's being ported over from Merb and the new options available to people who are currently limited by the existing stack. For those interested in pushing Rails further and doing stuff out of the norm, here are my slides. <a href="http://www.workingwithrails.com/person/5919-arthur-zapparoli">Arthur Zapparoli</a> from <a href="http://www.rubyonrails.pro.br/">Brazilian Rails squad</a> recorded most of the talk and told me he will upload the video ASAP. You can also read <a href="http://yehudakatz.com/2009/05/08/railsconf-wrapup/">Yehuda Katz' blog</a> which covers what he talked about.</p>
+
+<p><a href="http://www.slideshare.net/mattetti/rails3-stepping-off-of-the-golden-path?type=presentation">Rails3: Stepping off of the golden path</a></p>
+
+<p>View more <a href="http://www.slideshare.net/">presentations</a> from <a href="http://www.slideshare.net/mattetti">Matt Aimonetti</a>.</p>
+
+<p>It was really great to meet a lot of new people as well as people I only knew via IRC/IM/twitter.</p>
+
+<p>It was a great honor to finally meet <a href="http://twitter.com/dkubb">Dan Kubb</a> (DataMapper), <a href="http://twitter.com/ninh">Ninh Hernandez-Búi</a> &amp; <a href="http://twitter.com/phusion_nl">Hongli McLovin Lai (Phusion)</a>, <a href="http://twitter.com/peterc">Peter Cooper</a> (<a href="http://www.rubyinside.com/">RubyInside</a>), <a href="http://twitter.com/rsim">Raimonds Simanovskis</a> (Oracle adapter for AR), <a href="http://weblogs.java.net/blog/arungupta/">Arun Gupta</a> (Sun/Glassfish),  <a href="http://twitter.com/copiousfreetime">Jeremy Hinegardner</a> (crate), <a href="http://maximilien.org">Michael Maxilien</a> (IBM), Dana Jones (<a href="http://railsbridge.org/">railsbridge</a>), Zach Zolton &amp; Geoff Buesing (CouchRest) and of course the Brazilian crew (lots of awesome .br guys came this year, I'm looking forward to RailsSummit) and last but not least, the French speaking crew (I'm glad to see Ruby is picking up back home). (I know I'm forgetting people... sorry about that)</p>
+
+<p>It was also really nice to talk with some experts like Dave Astels, Aslak Hellesøy, Rich Kilmer, David Chelimsky, Ryan Brown, Derek Neighbors etc.. to get their feedback on various projects I'm working on.</p>
+
+<p>Leaving Vegas, I feel like the Rails community is expanding quickly (it was the first RailsConf for 1/4 to 1/5 of the attendees) and that the community is organizing itself to welcome a new audience (better documentation, great initiatives like <a href="http://railsbridge.org/">railsbridge.org</a>, willingness to help), as well as trying to be more available to the 'Enterprise' world.</p>
+
+<p>These feelings were enforced during our Rails Activism BOF and after talking with 3rd party developers and sponsors really trying to solve problems that newcomers to Rails are now facing. This is an exciting time.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Merb 1.0.11 (minor release)]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/31/merb-1011-minor-release/"/>
+    <updated>2009-03-31T22:10:57+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/31/merb-1011-minor-release</id>
+    <content type="html"><![CDATA[<p>Following the DataMapper 0.9.11 release, we just pushed a new minor Merb release.</p>
+
+<p>This release is mainly targeting new developers and Windows users wanting to install the full Merb stack. Others can simply update their dependencies if they use the dependencies.rb file or install the new gems if nothing is bundled and no hard dependencies are set.</p>
+
+<p>Merb is a metagem which installs a bunch of other gems (merb-core, DataMapper and a lot of small gems). The problem was that Merb was trying to install DM and dm-types, unfortunately, dm-types had a dependency on a gem which couldn't be installed on Windows. All of that is now fixed and Windows users can install Merb 1.0.11 without having to manually pick the gems they need.</p>
+
+<p>This release also includes a fix for people using CouchRest, a CouchDB Document Mapping DSL.</p>
+
+<p>Merb 1.1 is still planned to be released in April. A majority of the work has been done, but since Yehuda and myself are going to be traveling, the release will be slightly delayed.</p>
+
+<p>The great news regarding Merb 1.1 is that, on top of being fully Ruby 1.9 compatible, and using action-orm, and being closer to Rack, Yehuda and Carl have been working on the router to make it awesomer and ready for mountable apps :)</p>
+
+<p>Stay tuned for more news.</p>
+
+<p>update: People using CouchRest or another CouchDB ORM/DSL make sure you define your resources route with an identifier:</p>
+
+<p>resources :articles,        :identify => :id</p>
+
+<p>Otherwise, resource(@article) won't work. (This is usually done by the merb orm plugin and I might add it to CouchRest in the future)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Merb 1.0.10 (minor release)]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/18/merb-1010-minor-release/"/>
+    <updated>2009-03-18T17:11:35+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/18/merb-1010-minor-release</id>
+    <content type="html"><![CDATA[<p>We just pushed a really tiny update because of a bug in 1.0.9 affecting people using: Merb::Config[:max_memory]</p>
+
+<p>Merb::Config[:max_memory] has been fixed and now polls for memory usage every 30s instead of 0.25s. (memory is set in KB)</p>
+
+<p>This new version also uses DataMapper.repository instead of Kernel#repository (DM and Vlad related bug fix)</p>
+
+<p>We are still on schedule for Merb 1.1 which is planned for early April. (If you install Merb from our edge server, the latest version should already be Ruby 1.9 compatible)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Merb 1.1 roadmap]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/02/merb-11-roadmap/"/>
+    <updated>2009-03-02T11:20:34+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/03/02/merb-11-roadmap</id>
+    <content type="html"><![CDATA[<p>Yesterday, Carl Lerche, Yehuda Katz and myself had a meeting to discuss Merb 1.1's roadmap.</p>
+
+<p>Key items on the agenda were:</p>
+
+<ul>
+<li><p><strong>Ruby 1.9</strong></p></li>
+<li><p><strong>Mountable apps</strong></p></li>
+<li><p><strong>migration path to Rails3</strong></p></li>
+</ul>
+
+
+<p>After spending some time arguing back and forth, we decided that few things had to happen before we could migrate the current slices to pure mountable apps. Freezing the releases while waiting to get that done doesn't seem like a good idea.</p>
+
+<h3>Therefore, here is the plan for Merb 1.1:</h3>
+
+<ul>
+<li><p><strong>Ruby 1.9 full compatibility</strong> (with the very appreciated help from <a href="http://twitter.com/maiha">Maiha</a> and <a href="http://blog.s21g.com/takiuchi">Genki</a> (preview of their work <a href="http://merbi.st">there</a>)). Because Merb depends on different gems, we also need to work with 3rd party developers to make sure Merb's dependencies are Ruby 1.9 compatible</p></li>
+<li><p><strong>Merb helpers</strong> (fixes, enhancement and missing helpers)</p></li>
+<li><p><strong>Make Merb controllers, rack endpoints</strong>. This is a fully transparent change for the framework users. By making this switch, we offer more flexibility to the router (you can mount a sinatra app for instance) and we adopt the same approach as Rails 2.3 making the transition to 3 much easier and facilitating the implementation of mountable apps. Again, this is an internal change and you won't have to change anything in your application.</p></li>
+<li><p><strong>Router optimization</strong>, Carl has been working on few tricks/optimizations for the router that will be available in 1.1</p></li>
+<li><p><strong>Namespacing</strong>. If we want to make every single application, a potential mountable app, we need to namespace our applications. This is something we already do with slices, but currently generated applications are not namespaced. We are planning on doing that for 1.1 (backward compatible) to make mountable apps easier.</p></li>
+<li><p><strong>ActiveORM</strong>. ActiveORM is an ORM abstraction layer developed by Lori Holden (AT&amp;T interactive) which helps with helpers and other parts of your code accessing your ORM directly. For instance, the errors_for method need to be implemented differently depending on the underlying ORM. ActiveORM offers mapping for the 3 major Ruby ORMs: ActiveRecord, DataMapper and Sequel but let you hook to it if you want to extend ActiveORM to support your own ORM.</p></li>
+</ul>
+
+
+<p>There is plenty to do but we decided to still try to have an expected release date: around the end of March. As always in the OSS world, this is something we hope for, not a promise ;)</p>
+
+<h3>What about Merb 1.2?</h3>
+
+<p>1.2 will focus on mountable apps and we hope to get started on a separate branch before we release 1.1. However, mountable apps are hard to spec and we need a better feedback from the community. Tell us what you like with slices and what you don't like. Let us know how you would like the new mountable apps to work. Be as precise as possible. (you can leave a comment here or on the mailing list)</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: guest-post | Matt Aimonetti]]></title>
   <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/guest-post/atom.xml" rel="self"/>
   <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
-  <updated>2012-04-17T00:14:20+02:00</updated>
+  <updated>2012-04-17T01:22:39+02:00</updated>
   <id>http://mattetti.github.com/Matt-Aimonetti/</id>
   <author>
     <name><![CDATA[Matt Aimonetti]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[The Ruby movement]]></title>
-    <link href="http://mattetti.github.com/Matt-Aimonetti/articles/2010/09/28/the-ruby-movement/"/>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2010/09/28/the-ruby-movement/"/>
     <updated>2010-09-28T16:50:00+02:00</updated>
-    <id>http://mattetti.github.com/Matt-Aimonetti/articles/2010/09/28/the-ruby-movement</id>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2010/09/28/the-ruby-movement</id>
     <content type="html"><![CDATA[<p>In this <a href="http://rubylearning.com/blog/2010/09/28/the-ruby-movement/">guest post</a>, Matt writes for <a href="http://rubylearning.com">Ruby
 Learning</a> and compares art movements with coding movements.</p>
 

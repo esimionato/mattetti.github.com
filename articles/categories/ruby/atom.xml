@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | Matt Aimonetti]]></title>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
+  <updated>2012-04-17T01:22:39+02:00</updated>
+  <id>http://mattetti.github.com/Matt-Aimonetti/</id>
+  <author>
+    <name><![CDATA[Matt Aimonetti]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Quick dive into Ruby ORM object initialization]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization/"/>
+    <updated>2012-02-23T09:46:49+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2012/02/23/quick-dive-into-ruby-orm-object-initialization</id>
+    <content type="html"><![CDATA[<p>Yesterday I did some quick digging into how ORM objects are initialized and the performance cost associated to that. In other words, I wanted to see what's going on when you initialize an ActiveRecord object.</p>
+
+<p>Before I show you the benchmark numbers and you jump to conclusions, it's important to realize that in the grand scheme of things, the performance cost we are talking is small enough that it is certainly not the main reason why your application is slow. Spoiler alert: ActiveRecord is slow but the cost of initialization isn't by far the worse part of ActiveRecord. Also, even though this article doesn't make activeRecord look good, and I'm not trying to diss it. It's a decent ORM that does a great job in most cases.</p>
+
+<p>Let's get started by the benchmarks number to give us an idea of the damage (using Ruby 1.9.3 p125):</p>
+
+<pre><code>                                                             | Class | Hash  | AR 3.2.1 | AR no protection | Datamapper | Sequel |
+--------------------------------------------------------------------------------------------------------------------------------------
+.new() x100000                                               | 0.037 | 0.049 | 1.557    | 1.536            | 0.027      | 0.209  |
+.new({:id=&gt;1, :title=&gt;"Foo", :text=&gt;"Bar"}) x100000          | 0.327 | 0.038 | 6.784    | 5.972            | 4.226      | 1.986  |
+</code></pre>
+
+<p>You can see that I am comparing the allocation of a Class instance, a Hash and some ORM models. The benchmark suite tests the allocation of an empty object and one with passed attributes. The benchmark in question is available <a href="https://github.com/mattetti/benchmarks/blob/master/init_objects.rb">here</a>.</p>
+
+<p>As you can see there seems to be a huge performance difference between allocating a basic class and an ORM class. Instantiating an ActiveRecord class is 20x slower than instantiating a normal class, while ActiveRecord offers some extra features, why is it so much slower, especially at initialization time?</p>
+
+<p>The best way to figure it out is to profile the initialization. For that, I used <a href="https://github.com/tmm1/perftools.rb">perftools.rb</a> and I generated a graph of the call stack.</p>
+
+<p>Here is what Ruby does (and spends its time) when you initialize a new Model instance (click to download the PDF version):</p>
+
+<p><a href="http://github.com/mattetti/benchmarks/blob/master/ar_init_profile.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantation-by-Matt-Aimonetti.jpg" alt="Profiler diagram of AR model instantiation by Matt Aimonetti" /></a></p>
+
+<p>This is quite a scary graph but it shows nicely the features you are getting and their cost associated. For instance, the option of having the before and after initialization callback cost you 14% of your CPU time per instantiation, even though you probably almost never use these callbacks. I'm reading that by interpreting the node called ActiveSupport::Callback#run_callbacks, 3rd level from the top. So 14.1% of the CPU time is spent trying to run callbacks. As a quick note, note that 90.1% of the CPU time is spent initializing objects, the rest is spent in the loop and in the garbage collection (because the profiler runs many loops). You can then follow the code and see how the code works, creating a dynamic class callback method on the fly (the one with the long name) and then recreating the name of this callback to call it each time the object is allocated. It sounds like that's a good place for some micro optimizations which could yield up to 14% performance increase in some cases.</p>
+
+<p>Another major part of the CPU time is spent in ActiveModel's sanitization. This is the piece of code that allows you to block some model attributes to be mass assigned. This is useful when you don't want to sanitize your incoming params but want to create or update a model instance by using all the passed user params. To avoid malicious users to modify some specific params that might be in your model but not in your form, you can protect these attributes. A good example would be an admin flag on a User object. That said, if you manually initialize an instance, you don't need this extra protection, that's why in the benchmark above, I tested and without the protection. As you can see, it makes quite a big difference. The profiler graph of the same initialization without the mass assignment protection logically ends up looking quite different:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true">
+</a><a href="https://github.com/mattetti/benchmarks/blob/master/ar_init_no_protection.pdf?raw=true"><img src="http://merbist.com/wp-content/uploads/2012/02/AR-model-instantiation-without-mass-assignment-by-Matt-Aimonetti.jpg" alt="Matt Aimonetti shows the stack trace generated by the instantiation of an Active Record model" /></a></p>
+
+<p><strong>Update:</strong> My colleague <a href="https://twitter.com/#!/glv">Glenn Vanderburg</a> pointed out that some people might assuming that the shown code path is called for each record loaded from the database. This isn't correct, the graph represents instances allocated by calling #new. See the addition at the bottom of the post for more details about what's going on when you fetch data from the DB.</p>
+
+<p>I then decided to look at the graphs for the two other popular Ruby ORMs:</p>
+
+<p><a href="http://datamapper.org/">Datamapper</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/dm_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-txs4wa7b5rdpg45aj6354xg1wt.jpg" alt="" /></a></p>
+
+<p>and <a href="http://sequel.rubyforge.org/">Sequel</a></p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/sequel_init_profile.pdf?raw=true"><img src="http://img.skitch.com/20120223-p2jx6ypk35ucsgtx7p1tcabpes.jpg" alt="" /></a></p>
+
+<p>While I didn't give you much insight in ORM code, I hope that this post will motivate you to sometimes take a look under the cover and profile your code to see what's going on and why it might be slow. <strong>Never assume, always measure</strong>. Tools such as perftools are a great way to get a visual feedback and get a better understanding of how the Ruby interpreter is handling your code.</p>
+
+<h2>UPDATE:</h2>
+
+<p>I heard you liked graphs so I added some more, here is what's going on when you do Model.first:</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_first_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-f23s8xctghi8mj6ax3cdw9aq25.jpg" alt="" /></a></p>
+
+<p>Model.all</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_all_profile.pdf?raw=true"><img src="https://img.skitch.com/20120224-q29q4n7bj3i96erk1enxdqxb5e.jpg" alt="" /></a></p>
+
+<p>And finally this is the code graph for a call to Model.instantiate which is called after a record was retrieved from the database to convert into an Object. (You can see the #instantiate call referenced in the graph above).</p>
+
+<p><a href="https://github.com/mattetti/benchmarks/blob/master/ar_instantiate_profile.pdf?raw=true"><img src="http://img.skitch.com/20120224-8scmun9n1c9ufdnxa8rq2961bq.jpg" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[My RubyConf 2011 talk is online]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/09/my-rubyconf-2011-talk-is-online/"/>
+    <updated>2011-12-09T06:47:59+01:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/12/09/my-rubyconf-2011-talk-is-online</id>
+    <content type="html"><![CDATA[<p>I realize I forgot to mention that my RubyConf talk is now online on the <a href="http://confreaks.net/videos/714-rubyconf2011-complex-ruby-concepts-dummified">confreaks site</a> (wait until the end, Matz actually answers a question from the audience).</p>
+
+<p><img src="https://img.skitch.com/20111209-pdfksgd2sufg8ywrpnjd4dnru4.jpg" alt="Photo of Matt Aimonetti giving a talk at RubyConf 2011 with one of his slides showing how thread scheduling works" /></p>
+
+<p>I wrote a couple follow up posts you might also be interested in:</p>
+
+<ul>
+<li><p><a href="http://merbist.com/2011/10/03/about-concurrency-and-the-gil/">About concurrency and the GIL</a></p></li>
+<li><p><a href="http://merbist.com/2011/10/18/data-safety-and-gil-removal/">Data safety and GIL removal</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Data safety and GIL removal]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/10/18/data-safety-and-gil-removal/"/>
+    <updated>2011-10-18T15:19:17+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/10/18/data-safety-and-gil-removal</id>
+    <content type="html"><![CDATA[<p>After my recent <a href="http://rubyconf11.merbist.com">RubyConf talk</a> and <a href="http://merbist.com/2011/10/03/about-concurrency-and-the-gil/">follow up post addressing the Ruby &amp; Python's Global Interpreter Lock</a> (aka GVL/Global VM Lock). a lot of people asked me to explain what I meant by "data safety". While my point isn't to defend one approach or the other, I spent a lot of time explaining why C Ruby and C Python use a GIL and where it matters and where it matters less. As a reminder and as mentioned by Matz himself, the main reason why C Ruby still has a GIL is data safety. But if this point isn't clear to you, you might be missing the main argument supporting the use of a GIL.</p>
+
+<p>Showing obvious concrete examples of data corruption due to unsafe threaded code isn't actually as easy at it sounds. First of all, even with a GIL, developers can write unsafe threaded code. So we need to focus only on the safety problems raised by removing the GIL. To demonstrate what I mean, I will try to create some race conditions and show you the unexpected results you might get. Again, before you go crazy on the comments, remember that threaded code is indeterministic and the code below might potentially work on your machine and that's exactly why it is hard to demonstrate. Race conditions depend on many things, but in this case I will focus on race conditions affecting basic data structures since it might be the most surprising.</p>
+
+<h2>Example:</h2>
+
+<pre><code>@array, threads = [], []
+4.times do
+  threads &lt;&lt; Thread.new { (1..100_000).each {|n| @array &lt;&lt; n} }
+end
+threads.each{|t| t.join }
+puts @array.size
+</code></pre>
+
+<p>In the above example, I'm creating an instance variable of Array type and I start 4 threads. Each of these threads adds 100,000 items to the array. We then wait for all the threads to be done and check the size of the array.</p>
+
+<p>If you run this code in C Ruby the end result will be as expected:</p>
+
+<pre><code>400000
+</code></pre>
+
+<p>Now if you switch to JRuby you might be surprised by the output. If you are lucky you will see the following:</p>
+
+<pre><code>ConcurrencyError: Detected invalid array contents due to unsynchronized modifications with concurrent users
+        &lt;&lt; at org/jruby/RubyArray.java:1147
+  __file__ at demo.rb:3
+      each at org/jruby/RubyRange.java:407
+  __file__ at demo.rb:3
+      call at org/jruby/RubyProc.java:274
+      call at org/jruby/RubyProc.java:233
+</code></pre>
+
+<p>This is actually a good thing. JRuby detects that you are unsafely modifying an instance variable across threads and that data corruption will occur. However, the exception doesn't always get raised and you will potentially see results such as:</p>
+
+<pre><code>335467
+342397
+341080
+</code></pre>
+
+<p>This is a sign that the data was corrupted but that JRuby didn't catch the unsynchronized modification. On the other hand MacRuby and Rubinius 2 (dev) won't raise any exceptions and will just corrupt the data, outputting something like:</p>
+
+<pre><code>294278
+285755
+280704
+279865
+</code></pre>
+
+<p>In other words, if not manually synchronized, shared data can easily be corrupted. You might have two threads modifying the value of the same variable and one of the two threads will step on top of the other leaving you with a race condition. You only need 2 threads accessing the same instance variable at the same time to get a race condition. My example uses more threads and more mutations to make the problem more obvious. Note that TDD wouldn't catch such an issue and even extensive testing will provide very little guarantee that your code is thread safe.</p>
+
+<h2>So what? Thread safety isn't a new problem.</h2>
+
+<p>That's absolutely correct, ask any decent Java developer out there, he/she will tell how locks are used to "easily" synchronize objects to make your code thread safe. They might also mention the deadlocks and other issues related to that, but that's a different story. One might also argue that when you write web apps, there is very little shared data and the chances of corrupting data across concurrent requests is very small since most of the data is kept in a shared data store outside of the process.</p>
+
+<p>All these arguments are absolutely valid, the challenge is that you have a large community and a large amount of code out there that expects a certain behavior. And removing the GIL does change this behavior. It might not be a big deal for you because you know how to deal with thread safety, but it might be a big deal for others and C Ruby is by far the most used Ruby implementation. It's basically like saying that automatic cars shouldn't be made and sold, and everybody has to switch to stick shifts. They have better gas mileage, I personally enjoy driving then and they are cheaper to build. Removing the GIL is a bit like that. There is a cost associated with this decision and while this cost isn't insane, the people in charge prefer to not pay it.</p>
+
+<h2>Screw that, I'll switch to Node.js</h2>
+
+<p>I heard a lot of people telling me they were looking into using Node.js because it has a better design and no GIL. While I like Node.js and if I were to implement a chat room or an app keeping connections for a long time, I would certainly compare it closely to EventMachine, I also think that this argument related to the GIL is absurd. First, you have other Ruby implementations which don't have a GIL and are really stable (i.e: JRuby) but then Node basically works the same as Ruby with a GIL. Yes, Node is evented and single threaded but when you think about it, it behaves the same as Ruby 1.9 with its GIL. Many requests come in and they are handled one after the other and because IO requests are non-blocking, multiple requests can be processed concurrently but not in parallel. Well folks, that's exactly how C Ruby works too, and unlike popular believe, most if not all the popular libraries making IO requests are non blocking (when using 1.9). So, next time you try to justify you wanting to toy with Node, please don't use the GIL argument.</p>
+
+<h2>What should I do?</h2>
+
+<p>As always, evaluate your needs and see what makes sense for your project. Start by making sure you are using Ruby 1.9 and your code makes good use of threading. Then look at your app and how it behaves, is it CPU-bound or IO-bound. Most web apps out there are IO-bound (waiting for the DB, redis or API calls), and when doing an IO call, Ruby's GIL is released allowing another thread to do its work. In that case, not having a GIL in your Ruby implementation won't help you. However, if your app is CPU-bound, then switching to JRuby or Rubinius might be beneficial. However, don't assume anything until you proved it and remember that making such a change will more than likely require some architectural redesign, especially if using JRuby.  But, hey, it might totally be worth it as many proved it in the past.</p>
+
+<p>I hope I was able to clarify things a bit further. If you wish to dig further, I would highly recommend you read the many discussions the Python community had in the last few years.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[About concurrency and the GIL]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/10/03/about-concurrency-and-the-gil/"/>
+    <updated>2011-10-03T21:23:54+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/10/03/about-concurrency-and-the-gil</id>
+    <content type="html"><![CDATA[<p>During RubyConf 2011, concurrency was a really hot topic. This is not a new issue, and the JRuby team has been talking about true concurrency for quite a while . The Global Interpreter Lock has also been in a subject a<a href="http://wiki.python.org/moin/GlobalInterpreterLock"> lot of discussions in the Python community</a> and it's not surprising that the Ruby community experiences the same debates since the evolution of their implementations are somewhat similar. (There might also be some tension between <a href="http://engineyard.com">EngineYard</a> hiring the JRuby and Rubinius teams and <a href="http://heroku.com">Heroku</a> which <a href="http://blog.heroku.com/archives/2011/7/12/matz_joins_heroku/">recently hired Matz</a> (Ruby's creator) and <a href="https://github.com/nobu">Nobu</a>, the #1 C Ruby contributor)</p>
+
+<p>The GIL was probably even more of a hot topic now that <a href="http://rubini.us/">Rubinius</a> is about the join <a href="http://jruby.org">JRuby</a> and <a href="http://macruby.org">MacRuby</a> in the realm of GIL-less Ruby implementations.</p>
+
+<p>During my RubyConf talk (<a href="http://rubyconf11.merbist.com/">slides here</a>), I tried to explain how C Ruby works and why some decisions like having a GIL were made and why the Ruby core team isn't planning on removing this GIL anytime soon. The GIL is something a lot of Rubyists love to hate, but a lot of people don't seem to question why it's here and why Matz doesn't want to remove it. Defending the C Ruby decision isn't quite easy for me since I spend my free time working on an alternative Ruby implementation which doesn't use a GIL (MacRuby). However, I think it's important that people understand why the MRI team (C Ruby team) and some Pythonistas feels so strongly about the GIL.</p>
+
+<p><strong>What is the GIL?</strong></p>
+
+<p>Here is a quote from the <a href="http://wiki.python.org/moin/GlobalInterpreterLock">Python wiki</a>:</p>
+
+<blockquote><p>In CPython, the <strong>global interpreter lock</strong>, or <strong>GIL</strong>, is a mutex that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary mainly because CPython's memory management is not thread-safe. (However, since the GIL exists, other features have grown to depend on the guarantees that it enforces.) [...] The GIL is controversial because it prevents multithreaded CPython programs from taking full advantage of multiprocessor systems in certain situations. Note that potentially blocking or long-running operations, such as I/O, image processing, and <a href="http://wiki.python.org/moin/NumPy">NumPy</a> number crunching, happen <em>outside</em> the GIL. Therefore it is only in multithreaded programs that spend a lot of time inside the GIL, interpreting CPython bytecode, that the GIL becomes a bottleneck.</p></blockquote>
+
+<p>The same basically applies to C Ruby. To illustrate the quote above, here is a diagram representing two threads being executed by C Ruby:</p>
+
+<p><a href="http://rubyconf11.merbist.com/#44"><img src="http://rubyconf11.merbist.com/images/thread_scheduling.023.jpg" alt="Fair thread scheduling in Ruby by Matt Aimonetti" /></a></p>
+
+<p>Such a scheduling isn't a problem at all when you only have 1 cpu, since a cpu can only execute a piece of code at a time and context switching happens all the time to allow the machine to run multiple processes/threads in parallel. The problem is when you have more than 1 CPU because in that case, if you were to only run 1 Ruby process, then you would most of the time only use 1 cpu at a time. If you are running on a 8 cpu box, that's not cool at all! A lot of people stop at this explanation and imagine that their server can only handle one request at a time and they they rush to sign Greenpeace petitions asking Matz to make Ruby greener by optimizing Ruby and saving CPU cycles. Well, the reality is slightly different, I'll get back to that in a minute. Before I explain "ways to achieve true concurrency with CRuby, let me explain why C Ruby uses a GIL and why each implementation has to make an important choice and in this case both CPython and C Ruby chose to keep their GIL.</p>
+
+<h3>Why a GIL in the first place?</h3>
+
+<ul>
+<li><p>It makes developer's lives easier (it's harder to corrupt data)</p></li>
+<li><p>It avoids race conditions within C extensions</p></li>
+<li><p>It makes C extensions development easier (no write barriers..)</p></li>
+<li><p>Most of the C libraries which are wrapped are not thread safe</p></li>
+<li><p>Parts of Ruby's implementation aren't threadsafe (Hash for instance)</p></li>
+</ul>
+
+
+<p>As you can see the arguments can be organized in two main categories: data safety and C extensions/implementation. An implementation which doesn't rely too much on C extensions (because they run a bit slow, or because code written in a different language is preferred) is only faced with one argument: data safety.</p>
+
+<h3></h3>
+
+<h3>Should C Ruby remove its GIL?</h3>
+
+<ul>
+<li><p>No: it potentially makes Ruby code unsafe(r)</p></li>
+<li><p>No: it would break existing C extensions</p></li>
+<li><p>No: it would make writing C extensions harder</p></li>
+<li><p>No: it's a lot of work to change make C Ruby threadsafe</p></li>
+<li><p>No: Ruby is fast enough in most cases</p></li>
+<li><p>No: Memory optimization and GC is more important to tackle first</p></li>
+<li><p>No: C Ruby code would run slower</p></li>
+<li><p>Yes: we really need better/real concurrency</p></li>
+<li><p>Yes: <a href="https://plus.google.com/107994348420168435683/posts/993U42yVbfk">Rubber boots analogy (Gustavo Niemeyer)</a></p></li>
+</ul>
+
+
+<p>Don't count the amount of pros/cons to jump to the conclusion that removing the GIL is a bad idea. A lot of the arguments for removing the GIL are related. At the end of the day it boils down to data safety. During the Q&amp;A section of my RubyConf talk, Matz came up on stage and said data safety was the main reason why C Ruby still has a GIL. Again, this is a topic which was discussed at length in the Python community and I'd encourage you to read arguments from the <a href="http://www.jython.org/">Jython</a> (the equivalent of JRuby for Python) developers, <a href="http://codespeak.net/pypy/dist/pypy/doc/faq.html#does-pypy-have-a-gil-why">the PyPy</a> (the equivalent of Rubinius in the Python community) and CPython developers. (a good collection of arguments are actually available in the comments related to the <a href="https://plus.google.com/107994348420168435683/posts/993U42yVbfk">rubber boots post mentioned earlier</a>)</p>
+
+<h3>How can true concurrency be achieved using CRuby?</h3>
+
+<ul>
+<li><p>Run multiple processes (which you probably do if you use Thin, Unicorn or Passenger)</p></li>
+<li><p>Use event-driven programming with a process per CPU</p></li>
+<li><p>MultiVMs in a process. Koichi presented his plan to run multiple VMs within a process.  Each VM would have its own GIL and inter VM communication would be faster than inter process. This approach would solve most of the concurrency issues but at the cost of memory.</p></li>
+</ul>
+
+
+<p>Note:  forking a process only saves memory when using REE since it implements a GC patch that makes the forking process Copy on Write friendly. The Ruby core team worked on a patch for Ruby 1.9 to achieve the same result. <a href="http://twitter.com/#!/nari_en">Nari</a> &amp; <a href="http://twitter.com/#!/yukihiro_matz">Matz</a> are currently working on improving the implementation to make sure overall performance isn't affected.</p>
+
+<p>Finally, when developing web applications, each thread spend quite a lot of time in IOs which, as mentioned above won't block the thread scheduler. So if you receive two quasi-concurrent requests you might not even be affected by the GIL as illustrated in <a href="http://yehudakatz.com/2010/08/14/threads-in-ruby-enough-already/">this diagram from Yehuda Katz</a>:</p>
+
+<p><img src="http://yehudakatz.com/wp-content/uploads/2010/08/Untitled.002.png" alt="" /></p>
+
+<p>This is a simplified diagram but you can see that a good chunk of the request life cycle in a Ruby app doesn't require the Ruby thread to be active (CPU Idle blocks) and therefore these 2 requests would be processed almost concurrently.</p>
+
+<p>To boil it down to something simplified, when it comes to the GIL, an implementor has to chose between data safety and memory usage. But it is important to note that context switching between threads is faster than context switching between processes and data safety can and is often achieved in environments without a GIL, but it requires more knowledge and work on the developer side.</p>
+
+<h3>Conclusion</h3>
+
+<p>The decision to keep or remove the GIL is a bit less simple that it is often described. I respect Matz' decision to keep the GIL even though, I would personally prefer to push the data safety responsibility to the developers. However, I do know that many Ruby developers would end up shooting themselves in the foot and I understand that Matz prefers to avoid that and work on other ways to achieve true concurrency without removing the GIL. What is great with our ecosystem is that we have some diversity, and if you think that a GIL less model is what you need, we have some great alternative implementations that will let you make this choice. I hope that this article will help some Ruby developers understand and appreciate C Ruby's decision and what this decision means to them on a daily basis.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to - cross domain ajax to a Ruby app]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2011/09/14/how-to-cross-domain-ajax-in-a-ruby-app/"/>
+    <updated>2011-09-14T16:11:41+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2011/09/14/how-to-cross-domain-ajax-in-a-ruby-app</id>
+    <content type="html"><![CDATA[<p>In some cases, you might have a bunch of apps running on different domains/subdomains and/or ports and you would like to make ajax requests between these services. The problem is that browsers wouldn't let you make such requests because of the Same Origin Policy which only allowed them to make request to resources within the same domain.</p>
+
+<p>However, most browsers (IE 8+, Firefox 3.5+, Safari 4+, Chrome) implement a simple way to allow cross domain requests as defined in this <a href="http://www.w3.org/TR/cors/">w3C document</a>.</p>
+
+<p>Of course, if your users have an old version of their browser, you  might have to look into jsonp or something else such as cheating by using iframes &amp; setting document.domain. Let's pretend for a minute that 100% of your users are on Chrome. The only thing you need to do is set a response header listing the accepted domains or "*" for all. A simple Rack middleware to do that would look like that.</p>
+
+<pre><code>class XOriginEnabler
+  ORIGIN_HEADER = "Access-Control-Allow-Origin"
+
+  def initialize(app, accepted_domain="*")
+    @app = app
+    @accepted_domain = accepted_domain
+  end
+
+  def call(env)
+    status, header, body = @app.call(env)
+    header[ORIGIN_HEADER] = @accepted_domain
+    [status, header, body]
+  end
+end
+</code></pre>
+
+<p>And to use the middleware you would need to set it for use:</p>
+
+<pre><code>use XOriginEnabler
+</code></pre>
+
+<p>To enable all requests from whatever origin, or pass the white listed domain(s) as shown below.</p>
+
+<pre><code>use XOriginEnabler, "demo.mysite.com demo.mysite.fr demo.techcrunch.com"
+</code></pre>
+
+<p>For a full featured middleware, see <a href="https://github.com/cyu/rack-cors">this project</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>
