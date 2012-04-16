@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Matt Aimonetti's profile]]></title>
+  <title><![CDATA[Matt Aimonetti]]></title>
   <link href="http://mattetti.github.com/Matt-Aimonetti/atom.xml" rel="self"/>
   <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
-  <updated>2012-04-16T18:08:55+02:00</updated>
+  <updated>2012-04-17T00:14:20+02:00</updated>
   <id>http://mattetti.github.com/Matt-Aimonetti/</id>
   <author>
     <name><![CDATA[Matt Aimonetti]]></name>
