@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Matt Aimonetti]]></title>
   <link href="http://mattetti.github.com/Matt-Aimonetti/articles/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://mattetti.github.com/Matt-Aimonetti/"/>
-  <updated>2012-04-17T01:56:43+02:00</updated>
+  <updated>2012-04-17T03:10:20+02:00</updated>
   <id>http://mattetti.github.com/Matt-Aimonetti/</id>
   <author>
     <name><![CDATA[Matt Aimonetti]]></name>
@@ -424,6 +424,427 @@ end
 </code></pre>
 
 <p>That's it, your user can now browse for a folder and the selection will be displayed in the text field. Look at the <a href="http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSOpenPanel_Class/Reference/Reference.html">NSOpenPanel documentation</a> for more details on the Cocoa API.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MacRuby tips: capturing keyboard events]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/10/09/macruby-tips-capturing-keyboard-events/"/>
+    <updated>2009-10-09T19:24:04+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/10/09/macruby-tips-capturing-keyboard-events</id>
+    <content type="html"><![CDATA[<p>If you are writing any type of games you might want your users to interact with your application using their keyboards.</p>
+
+<p>This is actually not that hard. The approach is simple and fast forward if you are used to Cocoa.</p>
+
+<p>Everything starts in Interface Builder, add a custom view instance to your window.</p>
+
+<p><img src="http://img.skitch.com/20091010-8tf834wf9se6y81h2jf7a7e5he.jpg" alt="" /></p>
+
+<p>Now switch to your project and a new file with a class called KeyboardControlView and make in inherit from NSView. We are creating a subview of NSView so we will be able to make our top view "layer" use this subclass.</p>
+
+<pre><code>class KeyboardControlView &lt; NSView
+  attr_accessor :game_controller
+
+  def acceptsFirstResponder
+    true
+  end
+
+end
+</code></pre>
+
+<p>As you can see in the example above, I added an attribute accessor. attr_accessor class method creates getters and setters. It's basically the same as writing:</p>
+
+<pre><code> def game_controller=(value)
+  @game_controller = value
+end
+
+def game_controller
+  @game_controller
+end
+</code></pre>
+
+<p>MacRuby is keeping an eye on these accessors and let bind outlets to them.
+But let's not get ahead of ourselves, we'll keep that for another time.</p>
+
+<p>Let's go back to our newly created class. Notice, we also added a method called <code>
+[acceptsFirstResponder](http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSResponder_Class/Reference/Reference.html#//apple_ref/occ/instm/NSResponder/acceptsFirstResponder)</code> and returns true. <a href="http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSResponder_Class/Reference/Reference.html#//apple_ref/occ/instm/NSResponder/acceptsFirstResponder">acceptsFirstResponder</a> returns false by default.
+But in this case we want it to return true so our new class instance can be first in the responder chain.</p>
+
+<p>Now that our class is ready, let's go back to Interface Builder, select our new custom view and click on the inspector button.</p>
+
+<p><img src="http://img.skitch.com/20091010-1trkxhw2r2paaik3ipa4gtytgg.jpg" alt="" />
+Click on the (i) icon and in the Class field choose our new KeyboardControlView.
+Yep, our new class just shows up by magic, it's also called the lrz effect, just don't ask ;)
+So now when our application starts, a new instance of our NSView class is created and Cocoa will call different methods based on events triggered.</p>
+
+<p>The two methods we are interested in reimplementing are keyDown and keyUp. They get called when a key gets pressed or released.</p>
+
+<pre><code>def keyDown(event)
+  characters = event.characters
+  if characters.length == 1 &amp;&amp; !event.isARepeat
+    character = characters.characterAtIndex(0)
+    if character == NSLeftArrowFunctionKey
+      puts "LEFT pressed"
+    elsif character == NSRightArrowFunctionKey
+      puts "RIGHT pressed"
+    elsif character == NSUpArrowFunctionKey
+      puts "UP pressed"
+    elsif character == NSDownArrowFunctionKey
+      puts "DOWN pressed"
+    end
+  end
+ super
+end
+</code></pre>
+
+<p>I don't think the code above needs much explanation. The only things that you might not understand are 'event.isARepeat'. This method returns true if the user left his/her finger on the key. The other thing is the use of the 'super' call at the end of the method. Basically, we reopened a method that was already defined and we don't want to just overwrite it, we just want to inject out code within the existing method, so once we are done handling the event, we just pass it back to original method.</p>
+
+<p>Final result:</p>
+
+<pre><code>class KeyboardControlView &lt; NSView
+  attr_accessor :game_controller
+
+  def acceptsFirstResponder
+    true
+  end
+
+  def keyDown(event)
+    characters = event.characters
+    if characters.length == 1 &amp;&amp; !event.isARepeat
+      character = characters.characterAtIndex(0)
+      if character == NSLeftArrowFunctionKey
+        puts "LEFT pressed"
+      elsif character == NSRightArrowFunctionKey
+        puts "RIGHT pressed"
+      elsif character == NSUpArrowFunctionKey
+        puts "UP pressed"
+      elsif character == NSDownArrowFunctionKey
+    puts "DOWN pressed"
+      end
+    end
+    super
+  end
+
+  # Deals with keyboard keys being released
+  def keyUp(event)
+    characters = event.characters
+    if characters.length == 1
+      character = characters.characterAtIndex(0)
+      if character == NSLeftArrowFunctionKey
+       puts "LEFT released"
+      elsif character == NSRightArrowFunctionKey
+        puts "RIGHT released"
+      elsif character == NSUpArrowFunctionKey
+       puts "UP released"
+      elsif character == NSDownArrowFunctionKey
+        puts "DOWN released"
+      end
+    end
+    super
+  end
+
+end
+</code></pre>
+
+<p>Now it's up to you to handle the other keystrokes and do whatever you want. That's it for this tip, I hope it helps.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby, Rack and CouchDB = lots of awesomeness]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2009/07/27/ruby-rack-and-couchdb-lots-of-awesomeness/"/>
+    <updated>2009-07-27T13:49:20+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2009/07/27/ruby-rack-and-couchdb-lots-of-awesomeness</id>
+    <content type="html"><![CDATA[<p>Over the weekend, I spent some time working on a Ruby + Rack +CouchDB project. Three technologies that I know quite well but that I never put to work together at the same time, at least not directly.  Let's call this Part I.</p>
+
+<p>Before we get started, let me introduce each component:</p>
+
+<ul>
+<li><p><a href="http://en.wikipedia.org/wiki/Ruby%20%28programming%20language%29">Ruby</a> : if you are reading this blog, you more than likely know at least a little bit about, what I consider, one of the most enjoyable programming language out there. It's also a very flexible language that lets us do some interesting things. I could have chosen Python to do the same project but that's a whole different topic. For this project we will do something Ruby excels at: reopening existing classes and injecting more code.</p></li>
+<li><p><a href="http://rack.rubyforge.org/">Rack</a>: a webserver interface written in Ruby and inspired by <a href="http://www.wsgi.org/wsgi/">Python's WSGI</a>. Basically, it's a defined API to interact between webservers and web frameworks. It's used by most common Ruby web frameworks, from Sinatra to Rails (btw, Rails3 is going to be even more Rack-focused than it already is). So, very simply put, the webserver receives a request, passes it to Rack, that converts it, passes it to your web framework and the web framework sends a response in the expected format (more on Rack later).</p></li>
+<li><p><a href="http://couchdb.apache.org/">CouchDB</a>: Apache's document-oriented database. RESTful API, schema-less, written in Erlang with built-in support for map/reduce. For this project, I'm using <a href="http://github.com/mattetti/couchrest">CouchRest</a>, a Ruby wrapper for Couch.</p></li>
+</ul>
+
+
+<h2>Goal: Log Couch requests and analyze data</h2>
+
+<p>Let's say we have a Rails, Sinatra or Merb application and we are using CouchRest (maybe we are using CouchRest and ActiveRecord, but let's ignore that for now).</p>
+
+<p>Everything works fine but we would like to profile our app a little and maybe optimize the DB usage. The default framework loggers don't support Couch. The easy way would be to tail the Couch logs or look at the logs in <a href="http://janl.github.com/couchdbx/">CouchDBX</a>. Now, while that works, we can't really see what DB calls are made per action, so it makes any optimization work a bit tedious. (Note that Rails3 will have some better conventions for logging, making things even easier)</p>
+
+<p>So, let's see how to fix that. Let's start by looking at Rack.</p>
+
+<h2>Rack Middleware</h2>
+
+<p>Instead of hacking a web framework specific solution, let's use Rack. Rack is dead simple, you just need to write a class that has a <em>call</em> method.
+In our case, we don't care about modifying the response, we just want to instrument our app. We just want our middleware to be transparent and let our webserver deal with it normally.</p>
+
+<p>Here we go ... that wasn't hard, was it? We keep the application reference in the @app variable when a new instance of the middleware is created. Then when the middleware is called, we just call the rest of the chain and pretend nothing happened.</p>
+
+<p>As you can see, we just added some logging info around the request. Let's do one better and save the logs in CouchDB:</p>
+
+<p>Again, nothing complicated. In our rackup file we defined which Couch database to use and we passed it to our middleware (we change our initialize method signature to take the DB).
+Finally, instead of printing out the logs, we are saving them to the database.</p>
+
+<p>W00t! At this point all our requests have been saved in the DB with all the data there, ready to be manipulated by some map/reduce views we will write. For the record, you might want to use the bulk_save approach in CouchDB which will wait for X amount of records to save them in the DB all at once. Couch also let's you send new documents, but only save it to the DB every X documents or X seconds.</p>
+
+<p><img src="http://img.skitch.com/20090726-ebmpgjtrc6x8239ia69kmri1rt.jpg" alt="" /></p>
+
+<p>As you can see, our document contains the timestamps and the full environment as a hash.</p>
+
+<p>All of that is nice, but even though we get a lot of information, we could not actually see any of the DB calls made in each request. Let's fix that and inject our logger in CouchRest (you could apply the same approach to any adapter).</p>
+
+<p>Let's reopen the HTTP Abstraction layer class used by CouchRest and inject some instrumentation:</p>
+
+<p>Again, nothing fancy, we are just opening the module, reopening the methods and wrapping our code around the <em>super</em> call (for those who don't know, <em>super</em> calls the original method).</p>
+
+<p>This is all for Part I. In Part II, we'll see how to process the logs and make all that data useful.</p>
+
+<p>By the way, if you make it to <a href="http://www.railssummit.com.br/">RailsSummit</a>, I will be giving a talk on Rails3 and the new exciting stuff you will be able to do including Rack based stuff, CouchDB, MongoDB, new DataMapper etc..</p>
+
+<p><a href="http://railssummit.com.br/"><img src="http://railssummit.com.br/images/banners/en_souPalestrante_210x60.jpg" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Get on Merb Edge pre 1.0]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2008/10/04/get-on-merb-edge-pre-10/"/>
+    <updated>2008-10-04T13:00:01+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2008/10/04/get-on-merb-edge-pre-10</id>
+    <content type="html"><![CDATA[<p>Merb 1.0 is almost ready to be pushed out and you might be impatient to start playing with some of the goodies not yet available in the latest stable release. Before getting started, you should know that not everything has been ironed out yet so don't expect to have a fully stable Edge.</p>
+
+<p>The easiest way to get started requires that you have <a href="http://git.or.cz/">git</a> installed as well as a gem called <a href="http://github.com/wycats/thor/tree/master">thor</a>.</p>
+
+<p>I let you take care of installing git on your machine, Ruby dev without git became quite challenging since <a href="http://github.com">GitHub</a> started ruling the Ruby OSS world.</p>
+
+<pre><code>&lt;code class="shell"&gt;sudo gem install wycats-thor -s http://gems.github.com&lt;/code&gt;
+</code></pre>
+
+<p>[caption id="" align="alignright" width="240" caption="Hops, used primarily as a flavoring and stability agent in beer, and also in other beverages and in herbal medicine."]<a href="http://flickr.com/photos/fturmog/1438235253/"><img src="http://farm2.static.flickr.com/1418/1438235253_5b10c24732_m.jpg" alt="Hops, used primarily as a flavoring and stability agent in beer, and also in other beverages and in herbal medicine." /></a>[/caption]</p>
+
+<p><a href="http://yehudakatz.com/2008/05/12/by-thors-hammer/">Thor</a> is a sort if mix between rake, <a href="http://errtheblog.com/posts/60-sake-bomb">sake</a> with a better argument parser and based on Ruby classes.</p>
+
+<p>Thor on its own won't be very helpful, we need some thor tasks.</p>
+
+<p>Create a folder where you want to store Merb's source code and cd in it.</p>
+
+<p>Once there download the latest merb thor tasks:</p>
+
+<pre><code>&lt;code class="shell"&gt;curl -L http://merbivore.com/merb.thor &gt; merb.thor
+&lt;/code&gt;
+</code></pre>
+
+<p>You can now look at the available task by doing</p>
+
+<pre><code>&lt;code class="shell"&gt;thor -T&lt;/code&gt;
+</code></pre>
+
+<p>At this point you be overwhelmed by the multitude of options, we are working on making things a be nicer for 1.0. But anyways, let's get started:</p>
+
+<pre><code>&lt;code class="shell"&gt;sudo thor merb:edge --install&lt;/code&gt;
+</code></pre>
+
+<p>The command above will install extlib, merb-core and merb-more from git HEAD. You now have the latest version of Merb's libs installed locally as gems.</p>
+
+<p>You might also want to install Merb extra plugins, if that's the case do:</p>
+
+<pre><code>&lt;code class="shell"&gt; sudo thor merb:edge:plugins --install&lt;/code&gt;
+</code></pre>
+
+<p>If you decided to use DataMapper instead of ActiveRecord or Sequel, you will also need to install the gems you might need:</p>
+
+<p>Install data_objects and an adapter: (replace mysql by the adapter you want to install)</p>
+
+<pre><code>&lt;code class="shell"&gt; sudo thor merb:edge:do mysql --install&lt;/code&gt;
+</code></pre>
+
+<p>Install DataMapper core from Git HEAD</p>
+
+<pre><code>&lt;code class="shell"&gt; sudo thor merb:edge:dm_core --install&lt;/code&gt;
+</code></pre>
+
+<p>Install DataMapper more from Git HEAD</p>
+
+<pre><code>&lt;code class="shell"&gt; sudo thor merb:edge:dm_more --install&lt;/code&gt;
+</code></pre>
+
+<p>You should be all setup by now.</p>
+
+<p><strong>
+Next time you want to update, just come back to the same folder and do the same thing. Hopefully by then we will have a 1 task solution and will offer a merb-stack version of our gems to let you install everything at once with all setup done.</strong></p>
+
+<p>p.s: this post is dedicated <a href="http://derekneighbors.com/">Derek Neighbors</a> ;)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[problems with urls in Merb HEAD?]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/30/problems-with-urls-in-merb-head/"/>
+    <updated>2008-09-30T22:24:29+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/30/problems-with-urls-in-merb-head</id>
+    <content type="html"><![CDATA[<p>I actually run into a small problem when updated an older Merb app. Here was how my router looked like:</p>
+
+<pre><code>Merb::Router.prepare do |r|
+  r.resources :channels do |channels|
+    channels.resources :shows do |shows|
+      shows.resources :episodes
+    end
+  end
+end
+</code></pre>
+
+<p>But after updating to the latest version of Merb, I got links looking like:</p>
+
+<pre><code>http://localhost:4000/channels/#&lt;Channel:0x27b7300&gt;/shows
+</code></pre>
+
+<p>The first thing to do is to read <a href="http://github.com/carllerche/merb-core-enterprise-edition/wikis/whats-new-with-the-router">Carl's wiki about the latest Router changes</a>.</p>
+
+<p>Carl explains that things got cleaned up in the router code and my routes should now look like:</p>
+
+<pre><code>Merb::Router.prepare do |r|
+  r.resources :channels do
+    resources :shows do |shows|
+      resources :episodes
+    end
+  end
+end
+</code></pre>
+
+<p>However that won't be enough..  You see my url used to look like that:</p>
+
+<pre><code>url(:channel_shows, :channel_id =&gt; channel)
+</code></pre>
+
+<p>Now I can simplify it to:</p>
+
+<pre><code>url(:channel_shows, channel)
+</code></pre>
+
+<p>That still won't fix the problem, since the real problem comes from the fact that I was on Merb HEAD but not DataMapper HEAD. Updating DM clears things up. That's the price to pay to be on HEAD ;)</p>
+
+<p>FYI the problem comes from the fact that DM doesn't add a to_params method to its objects. Rails users might recognize that method used to convert an object into a string to create a route, something not really ORM agnostic and frowned upon by the DM/Merb teams.</p>
+
+<p>Merb lets you specify the param to use for your routes using the identify method. Read <a href="http://github.com/carllerche/merb-core-enterprise-edition/wikis/whats-new-with-the-router">Carl's wiki page </a>for more cool stuff and see how to create some cool stuff like url slugs etc..</p>
+
+<p>Note that even if you are using ActiveRecord, you'll need to update merb_activerecord as the new identify rules were updated in the ORM plugins.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Write your own custom DataMapper adapter]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/29/write-your-own-custom-datamapper-adapter/"/>
+    <updated>2008-09-29T00:38:46+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/29/write-your-own-custom-datamapper-adapter</id>
+    <content type="html"><![CDATA[<p>If you read this blog, you probably know that <a href="http://merbivore.com">Merb</a>'s best <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a> friend is <a href="http://datamapper.org/">DataMapper</a>.</p>
+
+<p>[caption id="" align="alignleft" width="240" caption="compounds in basil oil have potent antioxidant and is used for supplementary treatment of stress"]<a href="http://flickr.com/photos/darn/190457943/"><img src="http://farm1.static.flickr.com/55/190457943_8b93fda9e6_m.jpg" alt="compounds in basil oil have potent antioxidant and is used for supplementary treatment of stress" /></a>[/caption]</p>
+
+<p>Merb works very well with ActiveRecord and Sequel but most of the Merbivores get excited about <a href="http://datamapper.org/">DataMapper</a>.</p>
+
+<p>DataMapper has a lot of cool stuff going for it. I'm planning on writingi few articles about what I particularily like with DM and some of the misconceptions.</p>
+
+<p>I'm going to give a talk about DataMapper during <a href="http://merbcamp.com">MerbCamp</a> and something I want to cover is the fact that you can write DM adapters for virtually anything. From an adapter for couchdb (available in dm-more) to an <a href="http://github.com/wycats/dm-adapters/tree/master/salesforce">adapter for SalesForce API</a>. That's the kind of stuff that gets me excited, a bit like what <a href="http://ambition.rubyforge.org/">Ambition</a> does but built-in in DM.</p>
+
+<p>So, I decided to take some advise from <a href="http://yehudakatz.com/">Yehuda</a> and dkubb and wrote my own adapter for <a href="http://video.google.com">Google Video</a>. I had just finished a <a href="http://github.com/mattetti/gvideo">gem to retrieve google videos</a> for a given google user and thought it would be a perfect exercise to mix a <a href="http://en.wikipedia.org/wiki/Screen_scraping">http-scraper</a> with a DM adapter.</p>
+
+<p>Based on the advise I received, I started by defining the API I want to use:</p>
+
+<p>I matched the API calls to the underlying methods I would need to make. I then modified my original gem to support conditional calls.</p>
+
+<p>Once that was done I implemented the required methods for my models to support the Model.first and Model.all calls with conditions.</p>
+
+<p>A custom adapter inherits from <a href="http://github.com/sam/dm-core/tree/master/lib/dm-core/adapters/abstract_adapter.rb">AbstractAdapter</a> and can define the default adapter methods:</p>
+
+<pre><code>&lt;div id="LC9" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC10" class="line"&gt;Â Â Â Â Â Â Â Â &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;NotImplementedError&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC11" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;end&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC13" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;read_many&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC14" class="line"&gt;Â Â Â Â Â Â Â Â &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;NotImplementedError&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC15" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;end&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC17" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;read_one&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC18" class="line"&gt;Â Â Â Â Â Â Â Â &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;NotImplementedError&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC19" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;end&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC21" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC22" class="line"&gt;Â Â Â Â Â Â Â Â &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;NotImplementedError&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC23" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;end&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC25" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC26" class="line"&gt;Â Â Â Â Â Â Â Â &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;NotImplementedError&lt;/span&gt;&lt;/div&gt;
+&lt;div id="LC27" class="line"&gt;Â Â Â Â Â Â &lt;span class="k"&gt;end
+&lt;/span&gt;&lt;/div&gt;
+</code></pre>
+
+<p>Since my adapter only needs to read data, I just had to implement #read_one and #read_many. I implemented a #read private method accessed by #read_one and #read_many as you can see <a href="http://github.com/mattetti/dm-gvideo-adapter/tree/master/lib/dm-gvideo-adapter.rb#L29-60">here</a>.</p>
+
+<p>Because DM offers a clean and consistent API, things were pretty easy and you can check the <a href="http://github.com/mattetti/dm-gvideo-adapter/tree/master/spec/dm-gvideo-adapter_spec.rb">specs</a> to have a better understanding of how things are expected to work.</p>
+
+<p>As you can see with less than 80LOC, I implemented an adapter that I can use and reuse cleanly in my apps. And on top of that, the adapter uses a standard API known by everyone using DM.</p>
+
+<p><strong>Even though, this adapter has a very limited scope, I hope this example will inspire you and at your turn, will write some more cool adapters to share with the rest of us.</strong></p>
+
+<h2>UPDATE:</h2>
+
+<p>Sam Smoot, also known as Mr DataMapper made a very good comment. I should explain a bit more how you create a collection of objects to return when a user does a .all or .first call.</p>
+
+<p>The whole collection creation is a bit strange at first.</p>
+
+<p>In my read method, "set" is a DataMapper::Collection instance that is passed by the #read_one or #read_many method.</p>
+
+<p>The collection needs to be loaded with an array of ordered params.</p>
+
+<p>For instance in this case, to create a Video collection I need to load the collection with an ordered array of params like docid, title etc..Â  However, some params might be lazy loaded and in some instance, the query might be in the form of Video.all(:fields => :title)</p>
+
+<p>To figure out what fields/params we need, I used:</p>
+
+<pre><code>&lt;span class="n"&gt;properties&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fields
+&lt;/span&gt;
+</code></pre>
+
+<p>Which retrieves the required fields. Once you have the fields you need to return the structured data and that's when I used the #result_values method which basically loop through the fields and retrieves the data by sending the param as a method to the result:</p>
+
+<pre><code>&lt;span class="n"&gt;properties&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="nb"&gt;p&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;p&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;repository_name&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+</code></pre>
+
+<p>The values once retrieved get loaded, but here is a trick I took from wycat's saleforce API:</p>
+
+<pre><code>&lt;span class="n"&gt;arr&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;break&lt;/span&gt; &lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;))
+&lt;/span&gt;
+</code></pre>
+
+<p>This snippet is quite simple if we set arr as true, that means we want to return an array so we will keep on looping (used by read_more when we want to return an array of objects). Otherwise we use the break operator which will stop the loop but also return a value. (yes, Ruby is awesome). By returning a single object we do exactly what's expected and don't have to call #first on a returned array. Pretty slick</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying a bundled merb app (merb 0.9.7+)]]></title>
+    <link href="http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/23/deploying-a-bundled-merb-app-merb-097/"/>
+    <updated>2008-09-23T15:32:41+02:00</updated>
+    <id>http://mattetti.github.com/Matt-Aimonetti/posts/2008/09/23/deploying-a-bundled-merb-app-merb-097</id>
+    <content type="html"><![CDATA[<p>Since Merb 0.9.7 the Merb team decided to change the way you can bundle an app. Until 0.9.7 you would use the merb-freezer plugin which was supporting git submodules and gems. The only problem was that you still had to install merb-freezer on your server and it had to stay in sync with your app... kinda lame :(</p>
+
+<p>[caption id="" align="alignleft" width="240" caption="Ginger roots, great for deployment issues"]<a href="http://flickr.com/photos/vieuxbandit/1987820964/"><img src="http://farm3.static.flickr.com/2373/1987820964_bc54df0d81_m.jpg" alt="Ginger" /></a>[/caption]</p>
+
+<p>Instead, after a lot of discussions, we decided to add this feature to merb-core and let you bundle all your dependencies in a bundled gem folder. No more support for git submodules as they are hard to keep track of and don't handle dependencies very well (not at all).</p>
+
+<p>The new freezing strategy is very well described in <a href="http://merbunity.com/tutorials/18">this merbunity article</a>. However it doesn't really explain how to deploy a bundled app.</p>
+
+<p>So let's imagine for a second that we bundle our app, generated the scripts needed to start merb/rake etc...</p>
+
+<p>The key thing to do is to have a decent deployment recipe. Let's look at my cap recipe:</p>
+
+<p>As you can see there are few key elements:</p>
+
+<ul>
+<li><p>recompile native gems for the web server</p></li>
+<li><p>call bin/merb and not merb directly</p></li>
+</ul>
+
+
+<p>One thing you need to be aware of is that your bundled gems need to be up to date and play well alone. When you test your bundled app locally, you might endup loading system wide gems available which you don't have on your deployment server.</p>
+
+<p>If when you deploy your app everything seems fine but you can't access your app, check that you are recompiling native gems during your deployment and make sure you have bundled all the deps you need and that they work well alone.</p>
+
+<p>One more advise, if you can't figure out what's going, try ssh'ing to your server, go to your current folder and try bin/merb -iÂ  to see what's going on.</p>
 ]]></content>
   </entry>
   
